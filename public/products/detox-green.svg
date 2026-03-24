@@ -1,0 +1,14 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="24" fill="#022C22"/>
+  <rect x="24" y="24" width="592" height="372" rx="18" fill="url(#bg)"/>
+  <ellipse cx="320" cy="240" rx="120" ry="58" fill="#059669"/>
+  <path d="M320 122C356 156 382 188 320 244C258 188 284 156 320 122Z" fill="#34D399"/>
+  <text x="52" y="74" fill="#D1FAE5" font-family="Arial" font-size="30" font-weight="700">Detox Green Blend</text>
+  <text x="52" y="344" fill="#A7F3D0" font-family="Arial" font-size="22">Cleanse and restore daily energy</text>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="616" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#064E3B"/>
+      <stop offset="1" stop-color="#065F46"/>
+    </linearGradient>
+  </defs>
+</svg>

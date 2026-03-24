@@ -1,0 +1,14 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="24" fill="#052E16"/>
+  <rect x="24" y="24" width="592" height="372" rx="18" fill="url(#bg)"/>
+  <path d="M320 98L410 134V212C410 272 371 319 320 336C269 319 230 272 230 212V134L320 98Z" fill="#14532D" stroke="#86EFAC" stroke-width="6"/>
+  <path d="M284 216L310 242L356 186" stroke="#DCFCE7" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="74" fill="#DCFCE7" font-family="Arial" font-size="30" font-weight="700">Herbal Immune Support</text>
+  <text x="52" y="344" fill="#ECFCCB" font-family="Arial" font-size="22">Daily supplement for resilience</text>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="616" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#166534"/>
+      <stop offset="1" stop-color="#14532D"/>
+    </linearGradient>
+  </defs>
+</svg>

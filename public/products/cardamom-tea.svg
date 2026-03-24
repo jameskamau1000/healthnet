@@ -1,0 +1,17 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="24" fill="#0F172A"/>
+  <rect x="24" y="24" width="592" height="372" rx="18" fill="url(#bg)"/>
+  <circle cx="150" cy="210" r="90" fill="#155E75" opacity="0.5"/>
+  <circle cx="510" cy="90" r="64" fill="#22D3EE" opacity="0.35"/>
+  <rect x="220" y="92" width="210" height="210" rx="24" fill="#0B1120" stroke="#334155"/>
+  <rect x="245" y="128" width="160" height="112" rx="12" fill="#0F766E"/>
+  <rect x="266" y="258" width="118" height="16" rx="8" fill="#22D3EE"/>
+  <text x="52" y="74" fill="#CFFAFE" font-family="Arial" font-size="28" font-weight="700">4 in 1 Cardamom Coffee Tea</text>
+  <text x="52" y="344" fill="#E2E8F0" font-family="Arial" font-size="22">Wellness beverage blend</text>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="616" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E7490"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+</svg>

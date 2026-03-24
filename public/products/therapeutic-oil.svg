@@ -1,0 +1,15 @@
+<svg width="640" height="420" viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="420" rx="24" fill="#3F1D2E"/>
+  <rect x="24" y="24" width="592" height="372" rx="18" fill="url(#bg)"/>
+  <rect x="280" y="128" width="80" height="180" rx="20" fill="#FBBF24"/>
+  <rect x="292" y="102" width="56" height="34" rx="10" fill="#FEF3C7"/>
+  <circle cx="320" cy="224" r="26" fill="#F59E0B"/>
+  <text x="52" y="74" fill="#FCE7F3" font-family="Arial" font-size="30" font-weight="700">Therapeutic Herbal Oil</text>
+  <text x="52" y="344" fill="#FBCFE8" font-family="Arial" font-size="22">Relaxation and body care support</text>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="616" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7E22CE"/>
+      <stop offset="1" stop-color="#9D174D"/>
+    </linearGradient>
+  </defs>
+</svg>
