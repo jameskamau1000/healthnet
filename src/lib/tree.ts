@@ -22,7 +22,8 @@ export async function findBinaryPlacement(
     });
 
     const childMap = new Map(childRows.map((row) => [row.binaryPosition, row]));
-    const sideOrder = parentId === rootMemberId ? sideOrderMap[preferredSide] : ["LEFT", "RIGHT"];
+    const sideOrder: Array<"LEFT" | "RIGHT"> =
+      parentId === rootMemberId ? sideOrderMap[preferredSide] : ["LEFT", "RIGHT"];
 
     for (const side of sideOrder) {
       if (!childMap.has(side)) {
