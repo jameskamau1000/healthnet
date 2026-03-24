@@ -6,13 +6,13 @@ import { FormEvent, useEffect, useState } from "react";
 
 type MeResponse = {
   user: { id: string; email: string; name: string; role: "ADMIN" | "MEMBER" } | null;
-  defaultAdmin?: { email: string; password: string };
+  defaultAdmin?: { email: string; password: string } | null;
 };
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@healthnet.local");
-  const [password, setPassword] = useState("ChangeMe123!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
@@ -26,8 +26,8 @@ export default function LoginPage() {
         router.replace("/");
         return;
       }
-      if (data.defaultAdmin) {
-        setHint(`Default admin: ${data.defaultAdmin.email} / ${data.defaultAdmin.password}`);
+      if (data.defaultAdmin?.password) {
+        setHint(`Local dev admin: ${data.defaultAdmin.email} / ${data.defaultAdmin.password}`);
       }
     };
     run();
@@ -78,6 +78,8 @@ export default function LoginPage() {
               <span className="mb-1 block text-slate-400">Email</span>
               <input
                 type="email"
+                name="email"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
@@ -89,6 +91,8 @@ export default function LoginPage() {
               <span className="mb-1 block text-slate-400">Password</span>
               <input
                 type="password"
+                name="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"

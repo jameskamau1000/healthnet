@@ -132,8 +132,8 @@ export default function Home() {
   const [defaultAdminHint, setDefaultAdminHint] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
 
-  const [loginEmail, setLoginEmail] = useState("admin@healthnet.local");
-  const [loginPassword, setLoginPassword] = useState("ChangeMe123!");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
@@ -246,7 +246,10 @@ export default function Home() {
         if (meData.user) {
           await loadDashboard();
         } else {
-          const hint = `Default admin login: ${meData.defaultAdmin.email} / ${meData.defaultAdmin.password}`;
+          const hint =
+            meData.defaultAdmin?.email && meData.defaultAdmin?.password
+              ? `Local dev admin: ${meData.defaultAdmin.email} / ${meData.defaultAdmin.password}`
+              : null;
           setDefaultAdminHint(hint);
           setNotice(hint);
         }
@@ -576,6 +579,8 @@ export default function Home() {
   async function onLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
+    setLoginEmail("");
+    setLoginPassword("");
     setTreeNodes([]);
     setTreeDirectReferrals(0);
     setTreeTotalDownline(0);
@@ -1135,6 +1140,8 @@ export default function Home() {
                   <Field label="Email">
                     <input
                       type="email"
+                      name="email"
+                      autoComplete="username"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
@@ -1144,6 +1151,8 @@ export default function Home() {
                   <Field label="Password">
                     <input
                       type="password"
+                      name="password"
+                      autoComplete="current-password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"

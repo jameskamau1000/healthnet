@@ -19,8 +19,9 @@ It combines:
 Use these accounts for demo:
 
 - Admin:
-  - Email: `admin@healthnet.local`
-  - Password: `ChangeMe123!`
+  - Email: `admin@healthnet.local` (or `HEALTHNET_ADMIN_EMAIL` if you set it)
+  - Password: set `HEALTHNET_ADMIN_PASSWORD` in `.env`. On each app start the server applies it to the admin account (one sync per process). Production builds do **not** show default credentials on the login page or `/api/auth/me`.  
+  - **Local dev without `HEALTHNET_ADMIN_PASSWORD`:** the first-time seed still uses `ChangeMe123!` and the UI may show that hint only in development.
 - Member:
   - Email: `member@healthnet.local`
   - Password: `Member@12345`

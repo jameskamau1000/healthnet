@@ -2,8 +2,16 @@ import { hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { defaultPackages, defaultSettings } from "@/lib/compensation";
 
-const DEFAULT_ADMIN_EMAIL = "admin@healthnet.local";
-const DEFAULT_ADMIN_PASSWORD = "ChangeMe123!";
+const DEV_FALLBACK_ADMIN_PASSWORD = "ChangeMe123!";
+
+const adminEmail =
+  process.env.HEALTHNET_ADMIN_EMAIL?.trim() || "admin@healthnet.local";
+const envAdminPassword = process.env.HEALTHNET_ADMIN_PASSWORD?.trim();
+const isProd = process.env.NODE_ENV === "production";
+
+/** One bcrypt sync per Node process when HEALTHNET_ADMIN_PASSWORD is set. */
+let didApplyEnvAdminPassword = false;
+
 const defaultProducts = [
   {
     name: "4 in 1 Cardamom Coffee Tea",
@@ -58,7 +66,26 @@ const defaultProducts = [
   },
 ];
 
-export async function ensureBootstrapData() {
+async function applyEnvAdminPasswordIfNeeded(): Promise<void> {
+  if (!envAdminPassword || didApplyEnvAdminPassword) {
+    return;
+  }
+  const adminRow = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+  if (adminRow) {
+    const passwordHash = await hash(envAdminPassword, 10);
+    await prisma.user.update({
+      where: { id: adminRow.id },
+      data: { passwordHash },
+    });
+  }
+  didApplyEnvAdminPassword = true;
+}
+
+export async function ensureBootstrapData(): Promise<{
+  defaultAdmin: { email: string; password: string } | null;
+}> {
   const settings = await prisma.compensationSetting.findUnique({
     where: { id: "default" },
   });
@@ -92,27 +119,49 @@ export async function ensureBootstrapData() {
     });
   }
 
-  const adminUser = await prisma.user.findUnique({
-    where: { email: DEFAULT_ADMIN_EMAIL },
+  let adminUser = await prisma.user.findUnique({
+    where: { email: adminEmail },
   });
 
   if (!adminUser) {
-    const passwordHash = await hash(DEFAULT_ADMIN_PASSWORD, 10);
-    await prisma.user.create({
-      data: {
-        email: DEFAULT_ADMIN_EMAIL,
-        name: "HealthNet Admin",
-        passwordHash,
-        role: "ADMIN",
-        referralCode: "HEALTHNETADMIN",
-      },
-    });
+    const seedPassword =
+      envAdminPassword || (!isProd ? DEV_FALLBACK_ADMIN_PASSWORD : "");
+    if (seedPassword) {
+      const passwordHash = await hash(seedPassword, 10);
+      await prisma.user.create({
+        data: {
+          email: adminEmail,
+          name: "HealthNet Admin",
+          passwordHash,
+          role: "ADMIN",
+          referralCode: "HEALTHNETADMIN",
+        },
+      });
+      if (envAdminPassword) {
+        didApplyEnvAdminPassword = true;
+      }
+    } else if (isProd) {
+      console.warn(
+        "[HealthNet] No admin user and HEALTHNET_ADMIN_PASSWORD is not set; create an admin manually or set the env var.",
+      );
+    }
   }
 
+  if (!didApplyEnvAdminPassword) {
+    await applyEnvAdminPasswordIfNeeded();
+  }
+
+  const showDevCredentials =
+    !isProd && !envAdminPassword && !!(await prisma.user.findUnique({
+      where: { email: adminEmail },
+    }));
+
   return {
-    defaultAdmin: {
-      email: DEFAULT_ADMIN_EMAIL,
-      password: DEFAULT_ADMIN_PASSWORD,
-    },
+    defaultAdmin: showDevCredentials
+      ? {
+          email: adminEmail,
+          password: DEV_FALLBACK_ADMIN_PASSWORD,
+        }
+      : null,
   };
 }
