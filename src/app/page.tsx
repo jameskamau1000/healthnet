@@ -1387,8 +1387,8 @@ export default function Home() {
                         ))}
                         {treeGraph.nodes.map((node) => (
                           <g key={node.id}>
-                            <circle cx={node.x} cy={node.y} r={treeGraph.nodeRadius + 3} fill={treeRingColor(node)} />
-                            <circle cx={node.x} cy={node.y} r={treeGraph.nodeRadius} fill="#334155" />
+                            <circle cx={node.x} cy={node.y} r={(treeGraph.nodeRadius ?? 34) + 3} fill={treeRingColor(node)} />
+                            <circle cx={node.x} cy={node.y} r={treeGraph.nodeRadius ?? 34} fill="#334155" />
                             <text
                               x={node.x}
                               y={node.y + 4}
@@ -1401,7 +1401,7 @@ export default function Home() {
                             </text>
                             <text
                               x={node.x}
-                              y={node.y + treeGraph.nodeRadius + 18}
+                              y={node.y + (treeGraph.nodeRadius ?? 34) + 18}
                               textAnchor="middle"
                               fill="#e2e8f0"
                               fontSize="14"
@@ -1411,7 +1411,7 @@ export default function Home() {
                             </text>
                             <text
                               x={node.x}
-                              y={node.y + treeGraph.nodeRadius + 36}
+                              y={node.y + (treeGraph.nodeRadius ?? 34) + 36}
                               textAnchor="middle"
                               fill="#94a3b8"
                               fontSize="12"
