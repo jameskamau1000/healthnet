@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { PublicMarketing } from "@/components/public-marketing";
 import {
   AuditLogRecord,
   calculatePayout,
@@ -188,6 +189,70 @@ export default function Home() {
   );
   const [registerSubmitting, setRegisterSubmitting] = useState(false);
   const registerPanelRef = useRef<HTMLDivElement | null>(null);
+  const [heroSlide, setHeroSlide] = useState(0);
+  const [landingProducts, setLandingProducts] = useState<
+    Array<{
+      id: string;
+      name: string;
+      slug: string;
+      description: string;
+      category: string | null;
+      price: number;
+      imageUrl: string | null;
+    }>
+  >([]);
+
+  const heroSlides = useMemo(
+    () => [
+      {
+        kicker: "Welcome to Ayur Health International",
+        title: "Mother Nature & You",
+        subtitle: "Healing beyond science — holistic wellness and member rewards.",
+        gradient: "from-[#14532d] via-[#15803d] to-[#0f172a]",
+      },
+      {
+        kicker: "Welcome to Ayur Health International",
+        title: "Transparent rewards",
+        subtitle: "Referral, binary, and match bonuses with full traceability.",
+        gradient: "from-[#0f172a] via-[#14532d] to-[#15803d]",
+      },
+      {
+        kicker: "Welcome to Ayur Health International",
+        title: "Built for growth",
+        subtitle: "M-Pesa flows, payouts, and support in one trusted platform.",
+        gradient: "from-[#15803d] via-[#0f172a] to-[#14532d]",
+      },
+    ],
+    [],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/public/products")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.products) {
+          setLandingProducts(data.products);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (user) return;
+    const id = window.setInterval(
+      () =>
+        setHeroSlide((i) =>
+          heroSlides.length === 0 ? 0 : (i + 1) % heroSlides.length,
+        ),
+      6000,
+    );
+    return () => window.clearInterval(id);
+  }, [user, heroSlides.length]);
+
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
   const [newPackageId, setNewPackageId] = useState(defaultPackages[0].id);
   const [newReferralSales, setNewReferralSales] = useState(0);
@@ -959,14 +1024,20 @@ export default function Home() {
                   Features
                 </a>
                 <a
-                  href="#auth"
+                  href="#opportunity"
                   className="rounded-full border border-slate-300 bg-white px-4 py-2 text-slate-700 hover:bg-slate-50"
                 >
                   Get Started
                 </a>
                 <a
                   href="/login"
-                  className="rounded-full bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
+                  className="rounded-full border border-ayur-gold bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
+                >
+                  Register
+                </a>
+                <a
+                  href="/login"
+                  className="rounded-full border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50"
                 >
                   Login
                 </a>
@@ -990,372 +1061,13 @@ export default function Home() {
         )}
 
         {!loading && !user && (
-          <section className="space-y-10">
-            <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-              <div className="grid items-center gap-8 lg:grid-cols-2">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">
-                    Welcome to Ayur Health International
-                  </p>
-                  <h2 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">
-                    Transforming member operations with trusted health and rewards infrastructure.
-                  </h2>
-                  <p className="mt-4 max-w-xl text-sm text-slate-600 md:text-base">
-                    From onboarding and referral commissions to M-Pesa money movement and support care,
-                    Ayur Health International helps your organization deliver better outcomes, visibility, and member trust.
-                  </p>
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <a
-                      href="#auth"
-                      className="rounded-md bg-ayur-gold px-5 py-2.5 text-sm font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
-                    >
-                      Join Ayur Health International
-                    </a>
-                    <a
-                      href="/login"
-                      className="rounded-md border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      Login Portal
-                    </a>
-                  </div>
-                </div>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <Image
-                    src="/hero-platform.svg"
-                    alt="Ayur Health International platform preview"
-                    width={560}
-                    height={360}
-                    className="h-auto w-full rounded-lg"
-                    priority
-                  />
-                </div>
-              </div>
-            </article>
-
-            <section className="grid gap-4 md:grid-cols-3">
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Healing Beyond Data</p>
-                <h3 className="mt-2 text-xl font-semibold">Better wellness business operations</h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  Connect health-focused products, member communities, and reward logic in one place.
-                </p>
-              </article>
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Awards & Rewards</p>
-                <h3 className="mt-2 text-xl font-semibold">Financial freedom architecture</h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  Configure transparent compensation plans and empower team growth with confidence.
-                </p>
-              </article>
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Company Governance</p>
-                <h3 className="mt-2 text-xl font-semibold">Audit-ready from day one</h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  Use logs, reconciliations, and review workflows to protect users and operations.
-                </p>
-              </article>
-            </section>
-
-            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Our Core Values</p>
-              <h3 className="mt-2 text-2xl font-bold md:text-3xl">
-                Integrity, trust, accountability, and consistent improvement.
-              </h3>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {[
-                  "Integrity",
-                  "Trust",
-                  "Accountability",
-                  "Customer Commitment",
-                  "Leadership",
-                  "Quality",
-                  "Simplicity",
-                ].map((value) => (
-                  <span
-                    key={value}
-                    className="rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs text-slate-700"
-                  >
-                    {value}
-                  </span>
-                ))}
-              </div>
-            </section>
-
-            <section className="grid gap-4 md:grid-cols-2">
-              <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Our Vision</p>
-                <p className="mt-3 text-sm text-slate-600">
-                  To build a health and rewards ecosystem that members recommend, teams trust, and
-                  organizations choose for sustainable long-term growth.
-                </p>
-              </article>
-              <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Our Mission</p>
-                <p className="mt-3 text-sm text-slate-600">
-                  To inspire healthier communities by combining wellness opportunities with reliable
-                  digital operations, transparent payouts, and responsive support.
-                </p>
-              </article>
-            </section>
-
-            <section id="features" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-              <div className="max-w-2xl">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Platform Modules</p>
-                <h3 className="mt-2 text-2xl font-bold md:text-3xl">
-                  Everything your company needs for operations, payouts, and support.
-                </h3>
-              </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <article className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-wide text-ayur-green">Referral Engine</p>
-                  <h4 className="mt-2 text-lg font-semibold">Automated commission calculations</h4>
-                  <p className="mt-2 text-sm text-slate-600">
-                    Compute referral, binary, and package-level matching bonuses with full traceability.
-                  </p>
-                </article>
-                <article className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-wide text-ayur-green">Payments</p>
-                  <h4 className="mt-2 text-lg font-semibold">M-Pesa STK and B2C workflows</h4>
-                  <p className="mt-2 text-sm text-slate-600">
-                    Accept deposits, process withdrawals, and secure callback handling in one pipeline.
-                  </p>
-                </article>
-                <article className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-wide text-ayur-green">Member Care</p>
-                  <h4 className="mt-2 text-lg font-semibold">Support, notifications, and SMS</h4>
-                  <p className="mt-2 text-sm text-slate-600">
-                    Keep members informed with ticket replies, in-app alerts, and transactional messages.
-                  </p>
-                </article>
-              </div>
-            </section>
-
-            <section className="grid gap-4 md:grid-cols-4">
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs text-slate-500">Member Programs</p>
-                <p className="mt-2 text-2xl font-bold text-slate-900">10-60 Days</p>
-              </article>
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs text-slate-500">Supported Workflows</p>
-                <p className="mt-2 text-2xl font-bold text-slate-900">12+</p>
-              </article>
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs text-slate-500">Operational Visibility</p>
-                <p className="mt-2 text-2xl font-bold text-slate-900">24/7</p>
-              </article>
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs text-slate-500">Deployment Readiness</p>
-                <p className="mt-2 text-2xl font-bold text-slate-900">Production First</p>
-              </article>
-            </section>
-
-            <section className="grid gap-4 md:grid-cols-2">
-              <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Benefits</p>
-                <h3 className="mt-2 text-2xl font-bold">Build a healthier and stronger member network.</h3>
-                <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                  <li>Expand opportunities with transparent compensation structures.</li>
-                  <li>Improve trust using auditable transactions and approval workflows.</li>
-                  <li>Increase retention through fast support and clear communication loops.</li>
-                  <li>Give leadership real-time visibility into financial and member performance.</li>
-                </ul>
-              </article>
-              <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Newsletter</p>
-                <h3 className="mt-2 text-2xl font-bold">Stay updated with Ayur Health International releases.</h3>
-                <p className="mt-3 text-sm text-slate-600">
-                  Get product updates, feature launches, and operational insights delivered monthly.
-                </p>
-                <form className="mt-4 flex flex-col gap-2 sm:flex-row">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-md bg-ayur-gold px-4 py-2 text-sm font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
-                  >
-                    Subscribe
-                  </button>
-                </form>
-              </article>
-            </section>
-
-            <div id="auth" className="grid gap-4 md:grid-cols-2">
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold">Login</h3>
-                {defaultAdminHint && (
-                  <p className="mb-3 rounded border border-ayur-gold/30 bg-amber-50/50 p-2 text-xs text-ayur-maroon">
-                    {defaultAdminHint}
-                  </p>
-                )}
-                <form className="space-y-3" onSubmit={onLogin}>
-                  <Field label="Email">
-                    <input
-                      type="email"
-                      name="email"
-                      autoComplete="username"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                      required
-                    />
-                  </Field>
-                  <Field label="Password">
-                    <input
-                      type="password"
-                      name="password"
-                      autoComplete="current-password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                      required
-                    />
-                  </Field>
-                  <button
-                    type="submit"
-                    className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
-                  >
-                    Login
-                  </button>
-                </form>
-              </article>
-
-              <div
-                ref={registerPanelRef}
-                id="register-panel"
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm scroll-mt-24"
-              >
-                <h3 className="mb-4 text-lg font-semibold">Register Member Account</h3>
-                {registerAlert && (
-                  <div
-                    role="alert"
-                    aria-live="polite"
-                    className={`mb-4 rounded-lg border-2 px-4 py-3 text-sm font-medium shadow-sm ${
-                      registerAlert.variant === "success"
-                        ? "border-ayur-green bg-emerald-50 text-emerald-900"
-                        : "border-rose-400 bg-rose-50 text-rose-900"
-                    }`}
-                  >
-                    <p className="flex items-start gap-2">
-                      <span className="shrink-0 text-lg leading-none" aria-hidden>
-                        {registerAlert.variant === "success" ? "✓" : "!"}
-                      </span>
-                      <span>{registerAlert.message}</span>
-                    </p>
-                  </div>
-                )}
-                <form className="space-y-3" onSubmit={onRegister}>
-                  <Field label="Full name">
-                    <input
-                      value={regName}
-                      onChange={(e) => setRegName(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                      required
-                    />
-                  </Field>
-                  <Field label="Email">
-                    <input
-                      type="email"
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                      required
-                    />
-                  </Field>
-                  <Field label="Password">
-                    <input
-                      type="password"
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                      required
-                    />
-                  </Field>
-                  <Field label="Phone (optional for SMS alerts)">
-                    <input
-                      value={regPhoneNumber}
-                      onChange={(e) => setRegPhoneNumber(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                      placeholder="07... or 254..."
-                    />
-                  </Field>
-                  <Field label="Package">
-                    <select
-                      value={regPackageId}
-                      onChange={(e) => setRegPackageId(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                    >
-                      {packages.map((pkg) => (
-                        <option key={pkg.id} value={pkg.id}>
-                          {pkg.name}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Referral code (optional)">
-                    <input
-                      value={regReferralCode}
-                      onChange={(e) => setRegReferralCode(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                    />
-                  </Field>
-                  {regReferralCode && (
-                    <Field label="Preferred tree side">
-                      <select
-                        value={regPosition}
-                        onChange={(e) => setRegPosition(e.target.value as "left" | "right")}
-                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
-                      >
-                        <option value="left">Join left</option>
-                        <option value="right">Join right</option>
-                      </select>
-                    </Field>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={registerSubmitting}
-                    className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {registerSubmitting ? "Registering…" : "Register"}
-                  </button>
-                </form>
-              </div>
-            </div>
-
-            <footer className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-              <div className="grid gap-6 md:grid-cols-3">
-                <div>
-                  <Image
-                    src="/ayur-health-logo.svg"
-                    alt="Ayur Health International"
-                    width={160}
-                    height={42}
-                    className="h-9 w-auto"
-                  />
-                  <p className="mt-3 text-sm text-slate-600">
-                    Ayur Health International builds trusted digital infrastructure for member organizations.
-                  </p>
-                </div>
-                <div className="text-sm text-slate-600">
-                  <p className="font-semibold text-slate-900">Navigation</p>
-                  <p className="mt-2">About</p>
-                  <p>Opportunity</p>
-                  <p>Products</p>
-                  <p>Contacts</p>
-                </div>
-                <div className="text-sm text-slate-600">
-                  <p className="font-semibold text-slate-900">Contact</p>
-                  <p className="mt-2">hello@ayurhealthint.com</p>
-                  <p>Nairobi, Kenya</p>
-                  <p className="mt-2 text-xs text-slate-500">
-                    Built for high-trust member operations.
-                  </p>
-                </div>
-              </div>
-            </footer>
-          </section>
+          <PublicMarketing
+            heroSlide={heroSlide}
+            setHeroSlide={setHeroSlide}
+            heroSlides={heroSlides}
+            landingProducts={landingProducts}
+            settings={settings}
+          />
         )}
 
         {user && (
