@@ -8,7 +8,7 @@ export async function GET() {
   const products = await prisma.product.findMany({
     where: { isActive: true },
     orderBy: { createdAt: "desc" },
-    take: 8,
+    take: 9,
     select: {
       id: true,
       name: true,
