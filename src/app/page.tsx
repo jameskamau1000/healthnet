@@ -1030,7 +1030,7 @@ export default function Home() {
                   Get Started
                 </a>
                 <a
-                  href="/login"
+                  href="/login?tab=register"
                   className="rounded-full border border-ayur-gold bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                 >
                   Register

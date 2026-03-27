@@ -82,7 +82,7 @@ export function PublicMarketing({
                   + Discover products
                 </a>
                 <a
-                  href="#auth"
+                  href="/login?tab=register"
                   className="inline-flex items-center rounded bg-ayur-gold px-5 py-2.5 text-sm font-bold text-ayur-maroon shadow hover:bg-ayur-gold/90"
                 >
                   Register
@@ -480,7 +480,7 @@ export function PublicMarketing({
                 </a>
               </li>
               <li>
-                <a href="/login" className="hover:text-white">
+                <a href="/login?tab=register" className="hover:text-white">
                   Register
                 </a>
               </li>
