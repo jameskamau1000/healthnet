@@ -167,6 +167,9 @@ export default function Home() {
   const [depositAmount, setDepositAmount] = useState(0);
   const [depositPhoneNumber, setDepositPhoneNumber] = useState("");
   const [withdrawNote, setWithdrawNote] = useState("");
+  const [withdrawalChallengeId, setWithdrawalChallengeId] = useState<string | null>(null);
+  const [withdrawalOtpCode, setWithdrawalOtpCode] = useState("");
+  const [withdrawalBusy, setWithdrawalBusy] = useState(false);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [recon, setRecon] = useState({
     pendingStkOlderThan10Min: 0,
@@ -824,38 +827,50 @@ export default function Home() {
   async function requestWithdrawal(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const response = await fetch("/api/member/withdrawals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: withdrawAmount,
-        phoneNumber: withdrawPhoneNumber,
-        note: withdrawNote || undefined,
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setError(data.error ?? "Withdrawal request failed");
-      return;
-    }
-    if (data.otpRequired && data.challengeId) {
-      setNotice("OTP sent to your email. Enter the code to confirm withdrawal.");
-      const otpCode = window.prompt("Enter OTP code sent to your email:");
-      if (!otpCode) {
-        setError("Withdrawal confirmation cancelled. OTP is required.");
+    setWithdrawalBusy(true);
+    try {
+      if (withdrawalChallengeId) {
+        const verifyRes = await fetch("/api/member/withdrawals", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            challengeId: withdrawalChallengeId,
+            otpCode: withdrawalOtpCode.trim(),
+          }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok) {
+          setError(verifyData.error ?? "OTP verification failed");
+          return;
+        }
+        setNotice("Withdrawal request submitted.");
+        setWithdrawalChallengeId(null);
+        setWithdrawalOtpCode("");
+        setWithdrawAmount(0);
+        setWithdrawPhoneNumber("");
+        setWithdrawNote("");
+        await loadDashboard();
         return;
       }
-      const verifyRes = await fetch("/api/member/withdrawals", {
+
+      const response = await fetch("/api/member/withdrawals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          challengeId: data.challengeId,
-          otpCode: otpCode.trim(),
+          amount: withdrawAmount,
+          phoneNumber: withdrawPhoneNumber,
+          note: withdrawNote || undefined,
         }),
       });
-      const verifyData = await verifyRes.json();
-      if (!verifyRes.ok) {
-        setError(verifyData.error ?? "OTP verification failed");
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error ?? "Withdrawal request failed");
+        return;
+      }
+      if (data.otpRequired && data.challengeId) {
+        setWithdrawalChallengeId(data.challengeId);
+        setWithdrawalOtpCode("");
+        setNotice("OTP sent to your email. Enter the code below to confirm withdrawal.");
         return;
       }
       setNotice("Withdrawal request submitted.");
@@ -863,13 +878,9 @@ export default function Home() {
       setWithdrawPhoneNumber("");
       setWithdrawNote("");
       await loadDashboard();
-      return;
+    } finally {
+      setWithdrawalBusy(false);
     }
-    setNotice("Withdrawal request submitted.");
-    setWithdrawAmount(0);
-    setWithdrawPhoneNumber("");
-    setWithdrawNote("");
-    await loadDashboard();
   }
 
   async function requestDeposit(event: FormEvent<HTMLFormElement>) {
@@ -1959,31 +1970,68 @@ export default function Home() {
                         step="0.01"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-50"
                         required
+                        disabled={Boolean(withdrawalChallengeId)}
                       />
                     </Field>
                     <Field label="M-Pesa phone for B2C">
                       <input
                         value={withdrawPhoneNumber}
                         onChange={(e) => setWithdrawPhoneNumber(e.target.value)}
-                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-50"
                         required
+                        disabled={Boolean(withdrawalChallengeId)}
                       />
                     </Field>
                     <Field label="Note (optional)">
                       <input
                         value={withdrawNote}
                         onChange={(e) => setWithdrawNote(e.target.value)}
-                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-50"
+                        disabled={Boolean(withdrawalChallengeId)}
                       />
                     </Field>
-                    <div className="flex items-end">
+                    {withdrawalChallengeId && (
+                      <Field label="One-time code (email)">
+                        <input
+                          value={withdrawalOtpCode}
+                          onChange={(e) => setWithdrawalOtpCode(e.target.value)}
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
+                          placeholder="6-digit code"
+                          minLength={6}
+                          maxLength={6}
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          required
+                        />
+                      </Field>
+                    )}
+                    <div className="flex flex-col gap-2 md:col-span-3 md:flex-row md:items-end">
+                      {withdrawalChallengeId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setWithdrawalChallengeId(null);
+                            setWithdrawalOtpCode("");
+                            setNotice(null);
+                            setError(null);
+                          }}
+                          className="w-full rounded-md border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50 md:w-auto"
+                        >
+                          Cancel
+                        </button>
+                      )}
                       <button
                         type="submit"
-                        className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
+                        disabled={withdrawalBusy}
+                        className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90 disabled:opacity-70 md:w-auto md:flex-1"
                       >
-                        Submit Request
+                        {withdrawalBusy
+                          ? "Please wait..."
+                          : withdrawalChallengeId
+                            ? "Confirm withdrawal"
+                            : "Send OTP & continue"}
                       </button>
                     </div>
                   </form>
