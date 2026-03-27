@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   AuditLogRecord,
   calculatePayout,
@@ -183,6 +183,11 @@ export default function Home() {
   const [newProductPrice, setNewProductPrice] = useState(0);
   const [newProductDescription, setNewProductDescription] = useState("");
   const [purchaseBusyId, setPurchaseBusyId] = useState<string | null>(null);
+  const [registerAlert, setRegisterAlert] = useState<{ variant: "success" | "error"; message: string } | null>(
+    null,
+  );
+  const [registerSubmitting, setRegisterSubmitting] = useState(false);
+  const registerPanelRef = useRef<HTMLDivElement | null>(null);
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
   const [newPackageId, setNewPackageId] = useState(defaultPackages[0].id);
   const [newReferralSales, setNewReferralSales] = useState(0);
@@ -578,31 +583,51 @@ export default function Home() {
     event.preventDefault();
     setError(null);
     setNotice(null);
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: regName,
-        email: regEmail,
-        password: regPassword,
-        phoneNumber: regPhoneNumber || undefined,
-        packageId: regPackageId,
-        referralCode: regReferralCode || undefined,
-        position: regReferralCode ? regPosition : undefined,
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setError(data.error ?? "Registration failed");
-      return;
+    setRegisterAlert(null);
+    setRegisterSubmitting(true);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: regName,
+          email: regEmail,
+          password: regPassword,
+          phoneNumber: regPhoneNumber || undefined,
+          packageId: regPackageId,
+          referralCode: regReferralCode || undefined,
+          position: regReferralCode ? regPosition : undefined,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setRegisterAlert({
+          variant: "error",
+          message: data.error ?? "Registration failed. Please check your details and try again.",
+        });
+        return;
+      }
+      setRegisterAlert({
+        variant: "success",
+        message: `Registration successful. Welcome, ${data.name}. Your referral code is ${data.referralCode}. You can sign in below or use the Login link.`,
+      });
+      setRegName("");
+      setRegEmail("");
+      setRegPassword("");
+      setRegPhoneNumber("");
+      setRegReferralCode("");
+      setRegPosition("left");
+    } catch {
+      setRegisterAlert({
+        variant: "error",
+        message: "We could not reach the server. Check your connection and try again.",
+      });
+    } finally {
+      setRegisterSubmitting(false);
+      requestAnimationFrame(() => {
+        registerPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     }
-    setNotice(`Registered ${data.name}. Referral code: ${data.referralCode}`);
-    setRegName("");
-    setRegEmail("");
-    setRegPassword("");
-    setRegPhoneNumber("");
-    setRegReferralCode("");
-    setRegPosition("left");
   }
 
   async function onLogout() {
@@ -1197,8 +1222,30 @@ export default function Home() {
                 </form>
               </article>
 
-              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div
+                ref={registerPanelRef}
+                id="register-panel"
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm scroll-mt-24"
+              >
                 <h3 className="mb-4 text-lg font-semibold">Register Member Account</h3>
+                {registerAlert && (
+                  <div
+                    role="alert"
+                    aria-live="polite"
+                    className={`mb-4 rounded-lg border-2 px-4 py-3 text-sm font-medium shadow-sm ${
+                      registerAlert.variant === "success"
+                        ? "border-ayur-green bg-emerald-50 text-emerald-900"
+                        : "border-rose-400 bg-rose-50 text-rose-900"
+                    }`}
+                  >
+                    <p className="flex items-start gap-2">
+                      <span className="shrink-0 text-lg leading-none" aria-hidden>
+                        {registerAlert.variant === "success" ? "✓" : "!"}
+                      </span>
+                      <span>{registerAlert.message}</span>
+                    </p>
+                  </div>
+                )}
                 <form className="space-y-3" onSubmit={onRegister}>
                   <Field label="Full name">
                     <input
@@ -1268,12 +1315,13 @@ export default function Home() {
                   )}
                   <button
                     type="submit"
-                    className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
+                    disabled={registerSubmitting}
+                    className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Register
+                    {registerSubmitting ? "Registering…" : "Register"}
                   </button>
                 </form>
-              </article>
+              </div>
             </div>
 
             <footer className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
