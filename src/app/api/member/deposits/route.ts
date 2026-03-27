@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       amount: parsed.data.amount,
       phoneNumber: parsed.data.phoneNumber,
       accountReference: `HN-${member.id.slice(-6).toUpperCase()}`,
-      transactionDesc: "HealthNet account deposit",
+      transactionDesc: "Ayur Health International account deposit",
     });
   } catch (error) {
     return NextResponse.json(

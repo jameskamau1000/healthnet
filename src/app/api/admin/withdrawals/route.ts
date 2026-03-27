@@ -84,7 +84,7 @@ export async function PATCH(request: Request) {
         amount: existing.amount,
         phoneNumber: existing.phoneNumber,
         withdrawalId: existing.id,
-        remarks: `HealthNet withdrawal ${existing.id}`,
+        remarks: `Ayur Health International withdrawal ${existing.id}`,
       });
       payoutReference =
         ((b2c.ConversationID as string | undefined) ??
@@ -147,7 +147,7 @@ export async function PATCH(request: Request) {
   }
   await sendSmsSafe({
     to: refreshed.phoneNumber,
-    message: `HealthNet: Withdrawal ${refreshed.status.toLowerCase()} for ${refreshed.amount.toFixed(2)}.`,
+    message: `Ayur Health International: Withdrawal ${refreshed.status.toLowerCase()} for ${refreshed.amount.toFixed(2)}.`,
     userId: existing.member.userId,
     memberId: refreshed.memberId,
   });

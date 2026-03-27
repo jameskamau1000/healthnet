@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 78" fill="none" role="img" aria-labelledby="ahLogoTitle">
+  <title id="ahLogoTitle">Ayur Health International</title>
+  <defs>
+    <style>
+      .t-ayur { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-weight: 800; }
+      .t-health { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-weight: 700; }
+      .t-intl { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-weight: 300; }
+    </style>
+  </defs>
+  <!-- Mark: twin leaves + orbital rings (maroon, gold) -->
+  <g transform="translate(6,8)">
+    <ellipse cx="34" cy="34" rx="31" ry="25" transform="rotate(-24 34 34)" stroke="#7f1d1d" stroke-width="2.5" fill="none"/>
+    <ellipse cx="34" cy="34" rx="29" ry="23" transform="rotate(22 34 34)" stroke="#c9a227" stroke-width="2.5" fill="none" stroke-dasharray="8 6"/>
+    <ellipse cx="26" cy="32" rx="7" ry="15" transform="rotate(-38 26 32)" fill="#166534"/>
+    <ellipse cx="42" cy="32" rx="7" ry="15" transform="rotate(38 42 32)" fill="#15803d"/>
+    <path d="M34 50v-8" stroke="#14532d" stroke-width="2.2" stroke-linecap="round"/>
+  </g>
+  <text x="92" y="34" class="t-ayur" font-size="26" fill="#15803d" letter-spacing="0.02em">AYUR</text>
+  <text x="92" y="56" class="t-health" font-size="21" fill="#c9a227" letter-spacing="0.04em">HEALTH</text>
+  <text x="92" y="72" class="t-intl" font-size="10.5" fill="#7f1d1d" letter-spacing="0.42em">INTERNATIONAL</text>
+</svg>

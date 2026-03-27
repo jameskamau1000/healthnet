@@ -47,7 +47,7 @@ export async function PATCH(request: Request) {
   }
   await sendSmsSafe({
     to: member.phoneNumber,
-    message: "HealthNet: Your council application has been approved.",
+    message: "Ayur Health International: Your council application has been approved.",
     userId: member.userId,
     memberId: member.id,
   });

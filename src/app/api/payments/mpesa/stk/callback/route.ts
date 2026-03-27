@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     }
     await sendSmsSafe({
       to: deposit.phoneNumber,
-      message: `HealthNet: Deposit of ${deposit.amount.toFixed(2)} received successfully.`,
+      message: `Ayur Health International: Deposit of ${deposit.amount.toFixed(2)} received successfully.`,
       userId: member?.userId,
       memberId: deposit.memberId,
     });
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     });
     await sendSmsSafe({
       to: deposit.phoneNumber,
-      message: "HealthNet: Your M-Pesa deposit failed. Please try again.",
+      message: "Ayur Health International: Your M-Pesa deposit failed. Please try again.",
       memberId: deposit.memberId,
     });
   }

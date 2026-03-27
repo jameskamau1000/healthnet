@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HealthNet",
-  description: "HealthNet compensation and membership platform",
+  title: "Ayur Health International",
+  description: "Ayur Health International — member operations, wellness rewards, and secure payouts.",
 };
 
 export default function RootLayout({

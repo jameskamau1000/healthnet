@@ -131,7 +131,7 @@ export async function ensureBootstrapData(): Promise<{
       await prisma.user.create({
         data: {
           email: adminEmail,
-          name: "HealthNet Admin",
+          name: "Ayur Health Admin",
           passwordHash,
           role: "ADMIN",
           referralCode: "HEALTHNETADMIN",
@@ -142,7 +142,7 @@ export async function ensureBootstrapData(): Promise<{
       }
     } else if (isProd) {
       console.warn(
-        "[HealthNet] No admin user and HEALTHNET_ADMIN_PASSWORD is not set; create an admin manually or set the env var.",
+        "[Ayur Health] No admin user and HEALTHNET_ADMIN_PASSWORD is not set; create an admin manually or set the env var.",
       );
     }
   }

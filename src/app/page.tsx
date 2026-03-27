@@ -468,13 +468,13 @@ export default function Home() {
   }, [treeNodes]);
 
   function treeRingColor(node: ReferralTreeNode): string {
-    if (node.isPlaceholder) return "#64748b";
+    if (node.isPlaceholder) return "#94a3b8";
     const rank = node.rank ?? "";
-    if (rank === "BEST") return "#ef4444";
-    if (rank === "BETTER") return "#06b6d4";
-    if (rank === "GOOD") return "#eab308";
+    if (rank === "BEST") return "#7f1d1d";
+    if (rank === "BETTER") return "#c9a227";
+    if (rank === "GOOD") return "#15803d";
     if (rank === "FAIR") return "#22c55e";
-    return "#84cc16";
+    return "#15803d";
   }
 
   async function loadDashboard() {
@@ -875,14 +875,14 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900">
       <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto max-w-6xl px-6 py-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Image
-                src="/healthnet-logo.svg"
-                alt="HealthNet"
+                src="/ayur-health-logo.svg"
+                alt="Ayur Health International"
                 width={180}
                 height={48}
                 className="h-10 w-auto"
@@ -912,7 +912,7 @@ export default function Home() {
                 </a>
                 <a
                   href="/login"
-                  className="rounded-full bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500"
+                  className="rounded-full bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                 >
                   Login
                 </a>
@@ -929,10 +929,10 @@ export default function Home() {
             : "w-full space-y-6 py-6"
         }
       >
-        {loading && <p className="text-sm text-slate-600">Loading HealthNet...</p>}
+        {loading && <p className="text-sm text-slate-600">Loading Ayur Health International...</p>}
         {error && <p className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
         {notice && (user || notice !== defaultAdminHint) && (
-          <p className="rounded border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">{notice}</p>
+          <p className="rounded border border-ayur-gold/30 bg-amber-50/50 p-3 text-sm text-ayur-maroon">{notice}</p>
         )}
 
         {!loading && !user && (
@@ -940,22 +940,22 @@ export default function Home() {
             <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
               <div className="grid items-center gap-8 lg:grid-cols-2">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-blue-600">
-                    Welcome to HealthNet Multi-Dynamic
+                  <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">
+                    Welcome to Ayur Health International
                   </p>
                   <h2 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">
                     Transforming member operations with trusted health and rewards infrastructure.
                   </h2>
                   <p className="mt-4 max-w-xl text-sm text-slate-600 md:text-base">
                     From onboarding and referral commissions to M-Pesa money movement and support care,
-                    HealthNet helps your company deliver better outcomes, visibility, and member trust.
+                    Ayur Health International helps your organization deliver better outcomes, visibility, and member trust.
                   </p>
                   <div className="mt-6 flex flex-wrap gap-3">
                     <a
                       href="#auth"
-                      className="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-500"
+                      className="rounded-md bg-ayur-gold px-5 py-2.5 text-sm font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                     >
-                      Join HealthNet
+                      Join Ayur Health International
                     </a>
                     <a
                       href="/login"
@@ -968,7 +968,7 @@ export default function Home() {
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <Image
                     src="/hero-platform.svg"
-                    alt="HealthNet platform preview"
+                    alt="Ayur Health International platform preview"
                     width={560}
                     height={360}
                     className="h-auto w-full rounded-lg"
@@ -980,21 +980,21 @@ export default function Home() {
 
             <section className="grid gap-4 md:grid-cols-3">
               <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Healing Beyond Data</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Healing Beyond Data</p>
                 <h3 className="mt-2 text-xl font-semibold">Better wellness business operations</h3>
                 <p className="mt-2 text-sm text-slate-600">
                   Connect health-focused products, member communities, and reward logic in one place.
                 </p>
               </article>
               <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Awards & Rewards</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Awards & Rewards</p>
                 <h3 className="mt-2 text-xl font-semibold">Financial freedom architecture</h3>
                 <p className="mt-2 text-sm text-slate-600">
                   Configure transparent compensation plans and empower team growth with confidence.
                 </p>
               </article>
               <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Company Governance</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Company Governance</p>
                 <h3 className="mt-2 text-xl font-semibold">Audit-ready from day one</h3>
                 <p className="mt-2 text-sm text-slate-600">
                   Use logs, reconciliations, and review workflows to protect users and operations.
@@ -1003,7 +1003,7 @@ export default function Home() {
             </section>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Our Core Values</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Our Core Values</p>
               <h3 className="mt-2 text-2xl font-bold md:text-3xl">
                 Integrity, trust, accountability, and consistent improvement.
               </h3>
@@ -1029,14 +1029,14 @@ export default function Home() {
 
             <section className="grid gap-4 md:grid-cols-2">
               <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Our Vision</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Our Vision</p>
                 <p className="mt-3 text-sm text-slate-600">
                   To build a health and rewards ecosystem that members recommend, teams trust, and
                   organizations choose for sustainable long-term growth.
                 </p>
               </article>
               <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Our Mission</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Our Mission</p>
                 <p className="mt-3 text-sm text-slate-600">
                   To inspire healthier communities by combining wellness opportunities with reliable
                   digital operations, transparent payouts, and responsive support.
@@ -1046,28 +1046,28 @@ export default function Home() {
 
             <section id="features" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
               <div className="max-w-2xl">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Platform Modules</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Platform Modules</p>
                 <h3 className="mt-2 text-2xl font-bold md:text-3xl">
                   Everything your company needs for operations, payouts, and support.
                 </h3>
               </div>
               <div className="mt-6 grid gap-4 md:grid-cols-3">
                 <article className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-wide text-blue-600">Referral Engine</p>
+                  <p className="text-xs uppercase tracking-wide text-ayur-green">Referral Engine</p>
                   <h4 className="mt-2 text-lg font-semibold">Automated commission calculations</h4>
                   <p className="mt-2 text-sm text-slate-600">
                     Compute referral, binary, and package-level matching bonuses with full traceability.
                   </p>
                 </article>
                 <article className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-wide text-blue-600">Payments</p>
+                  <p className="text-xs uppercase tracking-wide text-ayur-green">Payments</p>
                   <h4 className="mt-2 text-lg font-semibold">M-Pesa STK and B2C workflows</h4>
                   <p className="mt-2 text-sm text-slate-600">
                     Accept deposits, process withdrawals, and secure callback handling in one pipeline.
                   </p>
                 </article>
                 <article className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs uppercase tracking-wide text-blue-600">Member Care</p>
+                  <p className="text-xs uppercase tracking-wide text-ayur-green">Member Care</p>
                   <h4 className="mt-2 text-lg font-semibold">Support, notifications, and SMS</h4>
                   <p className="mt-2 text-sm text-slate-600">
                     Keep members informed with ticket replies, in-app alerts, and transactional messages.
@@ -1097,7 +1097,7 @@ export default function Home() {
 
             <section className="grid gap-4 md:grid-cols-2">
               <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Benefits</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Benefits</p>
                 <h3 className="mt-2 text-2xl font-bold">Build a healthier and stronger member network.</h3>
                 <ul className="mt-4 space-y-2 text-sm text-slate-600">
                   <li>Expand opportunities with transparent compensation structures.</li>
@@ -1107,8 +1107,8 @@ export default function Home() {
                 </ul>
               </article>
               <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Newsletter</p>
-                <h3 className="mt-2 text-2xl font-bold">Stay updated with HealthNet releases.</h3>
+                <p className="text-xs uppercase tracking-[0.2em] text-ayur-green">Newsletter</p>
+                <h3 className="mt-2 text-2xl font-bold">Stay updated with Ayur Health International releases.</h3>
                 <p className="mt-3 text-sm text-slate-600">
                   Get product updates, feature launches, and operational insights delivered monthly.
                 </p>
@@ -1120,7 +1120,7 @@ export default function Home() {
                   />
                   <button
                     type="button"
-                    className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+                    className="rounded-md bg-ayur-gold px-4 py-2 text-sm font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                   >
                     Subscribe
                   </button>
@@ -1132,7 +1132,7 @@ export default function Home() {
               <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 className="mb-4 text-lg font-semibold">Login</h3>
                 {defaultAdminHint && (
-                  <p className="mb-3 rounded border border-blue-200 bg-blue-50 p-2 text-xs text-blue-700">
+                  <p className="mb-3 rounded border border-ayur-gold/30 bg-amber-50/50 p-2 text-xs text-ayur-maroon">
                     {defaultAdminHint}
                   </p>
                 )}
@@ -1161,7 +1161,7 @@ export default function Home() {
                   </Field>
                   <button
                     type="submit"
-                    className="w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500"
+                    className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                   >
                     Login
                   </button>
@@ -1239,7 +1239,7 @@ export default function Home() {
                   )}
                   <button
                     type="submit"
-                    className="w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500"
+                    className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                   >
                     Register
                   </button>
@@ -1251,14 +1251,14 @@ export default function Home() {
               <div className="grid gap-6 md:grid-cols-3">
                 <div>
                   <Image
-                    src="/healthnet-logo.svg"
-                    alt="HealthNet"
+                    src="/ayur-health-logo.svg"
+                    alt="Ayur Health International"
                     width={160}
                     height={42}
                     className="h-9 w-auto"
                   />
                   <p className="mt-3 text-sm text-slate-600">
-                    HealthNet builds trusted digital infrastructure for member organizations.
+                    Ayur Health International builds trusted digital infrastructure for member organizations.
                   </p>
                 </div>
                 <div className="text-sm text-slate-600">
@@ -1270,7 +1270,7 @@ export default function Home() {
                 </div>
                 <div className="text-sm text-slate-600">
                   <p className="font-semibold text-slate-900">Contact</p>
-                  <p className="mt-2">hello@healthnet.local</p>
+                  <p className="mt-2">hello@ayurhealthint.com</p>
                   <p>Nairobi, Kenya</p>
                   <p className="mt-2 text-xs text-slate-500">
                     Built for high-trust member operations.
@@ -1283,7 +1283,7 @@ export default function Home() {
 
         {user && (
           <section className="grid gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
-            <aside className="h-fit rounded-xl border border-slate-800 bg-slate-900 p-3 lg:sticky lg:top-6">
+            <aside className="h-fit rounded-xl border border-slate-200 bg-white shadow-sm p-3 lg:sticky lg:top-6">
               <p className="px-3 pb-2 text-xs uppercase tracking-wider text-slate-400">Menu</p>
               <div className="space-y-2">
                 {visibleTabs.map((tabId) => (
@@ -1291,8 +1291,8 @@ export default function Home() {
                     key={tabId}
                     className={`w-full rounded-lg px-3 py-2 text-left text-sm ${
                       activeTab === tabId
-                        ? "bg-cyan-400 font-semibold text-slate-950"
-                        : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+                        ? "bg-ayur-green font-semibold text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                     onClick={() => setActiveTab(tabId)}
                   >
@@ -1332,14 +1332,14 @@ export default function Home() {
                     value={String(Math.max(...treeNodes.map((node) => node.depth), 0))}
                   />
                 </div>
-                <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                   <h2 className="mb-4 text-lg font-semibold">Referrer Link</h2>
                   <div className="space-y-3">
                     <div className="grid gap-2 md:grid-cols-[1fr_auto]">
                       <input
                         value={referralLinks?.leftLink ?? "Loading left link..."}
                         readOnly
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700"
                       />
                       <button
                         onClick={async () => {
@@ -1347,7 +1347,7 @@ export default function Home() {
                           await navigator.clipboard.writeText(referralLinks.leftLink);
                           setNotice("Left referral link copied.");
                         }}
-                        className="rounded-md bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
+                        className="rounded-md bg-ayur-gold px-4 py-2 text-sm font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                       >
                         Copy left
                       </button>
@@ -1356,7 +1356,7 @@ export default function Home() {
                       <input
                         value={referralLinks?.rightLink ?? "Loading right link..."}
                         readOnly
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700"
                       />
                       <button
                         onClick={async () => {
@@ -1364,21 +1364,21 @@ export default function Home() {
                           await navigator.clipboard.writeText(referralLinks.rightLink);
                           setNotice("Right referral link copied.");
                         }}
-                        className="rounded-md bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
+                        className="rounded-md bg-ayur-gold px-4 py-2 text-sm font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                       >
                         Copy right
                       </button>
                     </div>
                   </div>
                 </article>
-                <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                   <h2 className="mb-4 text-lg font-semibold">Binary Tree</h2>
-                  {treeLoading && <p className="text-sm text-slate-300">Loading tree...</p>}
+                  {treeLoading && <p className="text-sm text-slate-600">Loading tree...</p>}
                   {!treeLoading && treeNodes.length === 0 && (
-                    <p className="text-sm text-slate-300">No referral tree data found yet.</p>
+                    <p className="text-sm text-slate-600">No referral tree data found yet.</p>
                   )}
                   {!treeLoading && treeGraph.nodes.length > 0 && (
-                    <div className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-950 p-3">
+                    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
                       <svg
                         width={treeGraph.width}
                         height={treeGraph.height}
@@ -1390,19 +1390,19 @@ export default function Home() {
                             key={edge.id}
                             points={edge.points}
                             fill="none"
-                            stroke="#64748b"
+                            stroke="#94a3b8"
                             strokeWidth="2"
                           />
                         ))}
                         {treeGraph.nodes.map((node) => (
                           <g key={node.id}>
                             <circle cx={node.x} cy={node.y} r={(treeGraph.nodeRadius ?? 34) + 3} fill={treeRingColor(node)} />
-                            <circle cx={node.x} cy={node.y} r={treeGraph.nodeRadius ?? 34} fill="#334155" />
+                            <circle cx={node.x} cy={node.y} r={treeGraph.nodeRadius ?? 34} fill="#ffffff" stroke="#e2e8f0" strokeWidth="1" />
                             <text
                               x={node.x}
                               y={node.y + 4}
                               textAnchor="middle"
-                              fill="#cbd5e1"
+                              fill="#334155"
                               fontSize="11"
                               fontWeight="600"
                             >
@@ -1412,7 +1412,7 @@ export default function Home() {
                               x={node.x}
                               y={node.y + (treeGraph.nodeRadius ?? 34) + 18}
                               textAnchor="middle"
-                              fill="#e2e8f0"
+                              fill="#0f172a"
                               fontSize="14"
                               fontWeight="600"
                             >
@@ -1422,7 +1422,7 @@ export default function Home() {
                               x={node.x}
                               y={node.y + (treeGraph.nodeRadius ?? 34) + 36}
                               textAnchor="middle"
-                              fill="#94a3b8"
+                              fill="#64748b"
                               fontSize="12"
                             >
                               {node.position ? node.position : "ROOT"}
@@ -1437,16 +1437,16 @@ export default function Home() {
             )}
 
             {activeTab === "myReferrer" && (
-              <section className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                 <h2 className="mb-3 text-lg font-semibold">My Referrer</h2>
-                {treeLoading && <p className="text-sm text-slate-300">Loading referrer data...</p>}
+                {treeLoading && <p className="text-sm text-slate-600">Loading referrer data...</p>}
                 {!treeLoading && treeDirectRows.length === 0 && (
-                  <p className="text-sm text-slate-300">No direct referrals yet.</p>
+                  <p className="text-sm text-slate-600">No direct referrals yet.</p>
                 )}
                 {treeDirectRows.length > 0 && (
                   <div className="overflow-x-auto">
                     <table className="min-w-full text-sm">
-                      <thead className="text-left text-slate-300">
+                      <thead className="text-left text-ayur-maroon/80">
                         <tr>
                           <th className="px-3 py-2">Name</th>
                           <th className="px-3 py-2">Email</th>
@@ -1457,7 +1457,7 @@ export default function Home() {
                       </thead>
                       <tbody>
                         {treeDirectRows.map((row) => (
-                          <tr key={row.id} className="border-t border-slate-800">
+                          <tr key={row.id} className="border-t border-slate-200">
                             <td className="px-3 py-2">{row.name}</td>
                             <td className="px-3 py-2">{row.email}</td>
                             <td className="px-3 py-2">{row.packageName ?? "-"}</td>
@@ -1473,11 +1473,11 @@ export default function Home() {
             )}
 
             {activeTab === "referrerCommission" && (
-              <section className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                 <h2 className="mb-3 text-lg font-semibold">Referrer Commission</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">SL</th>
                         <th className="px-3 py-2">TRX-ID</th>
@@ -1490,7 +1490,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {referrerCommissionRows.map((row) => (
-                        <tr key={row.id} className="border-t border-slate-800">
+                        <tr key={row.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{row.sl}</td>
                           <td className="px-3 py-2">{row.id.slice(0, 12).toUpperCase()}</td>
                           <td className="px-3 py-2 font-semibold text-emerald-300">+ {money(row.amount)}</td>
@@ -1502,7 +1502,7 @@ export default function Home() {
                       ))}
                       {referrerCommissionRows.length === 0 && (
                         <tr>
-                          <td className="px-3 py-3 text-slate-300" colSpan={7}>
+                          <td className="px-3 py-3 text-slate-600" colSpan={7}>
                             No referrer commission records yet.
                           </td>
                         </tr>
@@ -1514,11 +1514,11 @@ export default function Home() {
             )}
 
             {activeTab === "binaryCommission" && (
-              <section className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                 <h2 className="mb-3 text-lg font-semibold">Binary Commission</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">SL</th>
                         <th className="px-3 py-2">TRX-ID</th>
@@ -1531,7 +1531,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {binaryCommissionRows.map((row) => (
-                        <tr key={row.id} className="border-t border-slate-800">
+                        <tr key={row.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{row.sl}</td>
                           <td className="px-3 py-2">{row.id.slice(0, 12).toUpperCase()}</td>
                           <td className="px-3 py-2 font-semibold text-emerald-300">+ {money(row.amount)}</td>
@@ -1543,7 +1543,7 @@ export default function Home() {
                       ))}
                       {binaryCommissionRows.length === 0 && (
                         <tr>
-                          <td className="px-3 py-3 text-slate-300" colSpan={7}>
+                          <td className="px-3 py-3 text-slate-600" colSpan={7}>
                             No binary commission records yet.
                           </td>
                         </tr>
@@ -1559,7 +1559,7 @@ export default function Home() {
                 {isAdmin && (
                   <form
                     onSubmit={onAddProduct}
-                    className="grid gap-3 rounded-xl border border-slate-800 bg-slate-900 p-5 md:grid-cols-2"
+                    className="grid gap-3 rounded-xl border border-slate-200 bg-white shadow-sm p-5 md:grid-cols-2"
                   >
                     <h2 className="md:col-span-2 text-lg font-semibold">Add Product</h2>
                     <Field label="Product name">
@@ -1567,14 +1567,14 @@ export default function Home() {
                         required
                         value={newProductName}
                         onChange={(e) => setNewProductName(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Category (optional)">
                       <input
                         value={newProductCategory}
                         onChange={(e) => setNewProductCategory(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Price (USD)">
@@ -1585,7 +1585,7 @@ export default function Home() {
                         step="0.01"
                         value={newProductPrice}
                         onChange={(e) => setNewProductPrice(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <div className="md:col-span-2">
@@ -1594,14 +1594,14 @@ export default function Home() {
                           required
                           value={newProductDescription}
                           onChange={(e) => setNewProductDescription(e.target.value)}
-                          className="h-24 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                          className="h-24 w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         />
                       </Field>
                     </div>
                     <div className="md:col-span-2 flex justify-end">
                       <button
                         type="submit"
-                        className="rounded-md bg-cyan-400 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-300"
+                        className="rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                       >
                         Create Product
                       </button>
@@ -1615,12 +1615,12 @@ export default function Home() {
                       key={product.id}
                       className={`rounded-xl border p-5 ${
                         product.isActive
-                          ? "border-slate-800 bg-slate-900"
-                          : "border-amber-800/70 bg-amber-950/20"
+                          ? "border-slate-200 bg-white shadow-sm"
+                          : "border-ayur-gold/50 bg-amber-50/40"
                       }`}
                     >
                       {product.imageUrl && (
-                        <div className="mb-3 overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+                        <div className="mb-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                           <Image
                             src={product.imageUrl}
                             alt={product.name}
@@ -1641,19 +1641,19 @@ export default function Home() {
                           className={`rounded-full px-2 py-1 text-xs ${
                             product.isActive
                               ? "bg-emerald-900/60 text-emerald-200"
-                              : "bg-amber-900/60 text-amber-200"
+                              : "bg-ayur-maroon/90 text-amber-50"
                           }`}
                         >
                           {product.isActive ? "Active" : "Hidden"}
                         </span>
                       </div>
-                      <p className="mt-3 text-sm text-slate-300">{product.description}</p>
+                      <p className="mt-3 text-sm text-slate-600">{product.description}</p>
                       <div className="mt-4 flex items-center justify-between">
-                        <p className="text-base font-bold text-cyan-300">{money(product.price)}</p>
+                        <p className="text-base font-bold text-ayur-green">{money(product.price)}</p>
                         {isAdmin && (
                           <button
                             onClick={() => toggleProductStatus(product.id, product.isActive)}
-                            className="rounded bg-slate-800 px-3 py-1 text-xs hover:bg-slate-700"
+                            className="rounded bg-ayur-maroon px-3 py-1 text-xs text-white hover:bg-ayur-maroon/90"
                           >
                             {product.isActive ? "Hide" : "Activate"}
                           </button>
@@ -1667,13 +1667,13 @@ export default function Home() {
 
             {activeTab === "plans" && (
               <section className="space-y-4">
-                <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                   <h2 className="text-lg font-semibold">Plans</h2>
-                  <p className="mt-1 text-sm text-slate-300">
+                  <p className="mt-1 text-sm text-slate-600">
                     Compare plan tiers, business volume (BV), and request upgrades.
                   </p>
                   {currentMember && (
-                    <p className="mt-2 text-sm text-cyan-300">
+                    <p className="mt-2 text-sm text-ayur-green">
                       Current plan: {packageMap.get(currentMember.packageId)?.name ?? currentMember.packageId}
                     </p>
                   )}
@@ -1692,16 +1692,16 @@ export default function Home() {
                     return (
                       <article
                         key={pkg.id}
-                        className="rounded-xl border border-slate-800 bg-slate-900 p-5"
+                        className="rounded-xl border border-slate-200 bg-white shadow-sm p-5"
                       >
-                        <div className="rounded-full bg-slate-950 px-4 py-2 text-center text-xl font-bold uppercase tracking-wide text-cyan-300">
+                        <div className="rounded-full bg-ayur-green/10 px-4 py-2 text-center text-xl font-bold uppercase tracking-wide text-ayur-green">
                           {pkg.name.split("/")[0].trim()}
                         </div>
                         <div className="mt-5 space-y-1 text-center">
                           <p className="text-4xl font-bold">KES {estimatedKes.toLocaleString()}</p>
                           <p className="text-3xl font-semibold text-slate-200">${pkg.price.toLocaleString()}</p>
                         </div>
-                        <p className="mt-5 text-center text-sm text-slate-300">
+                        <p className="mt-5 text-center text-sm text-slate-600">
                           Business Volume (BV): <span className="font-semibold">{bv}</span>
                         </p>
 
@@ -1716,14 +1716,14 @@ export default function Home() {
                           ) : canUpgrade && user?.role === "MEMBER" ? (
                             <button
                               onClick={() => requestPlanUpgrade(pkg.id, pkg.name)}
-                              className="w-full rounded-full bg-amber-500 px-4 py-2 font-semibold text-slate-950 hover:bg-amber-400"
+                              className="w-full rounded-full bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                             >
                               UPGRADE NOW
                             </button>
                           ) : (
                             <button
                               disabled
-                              className="w-full rounded-full bg-slate-700 px-4 py-2 font-semibold text-slate-200"
+                              className="w-full rounded-full bg-slate-200 px-4 py-2 font-semibold text-slate-800"
                             >
                               NOT AVAILABLE
                             </button>
@@ -1737,13 +1737,13 @@ export default function Home() {
             )}
 
             {activeTab === "packages" && (
-              <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+              <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                 <h2 className="mb-4 text-lg font-semibold">Package Catalog</h2>
                 <div className="space-y-4">
                   {packages.map((pkg) => (
                     <div
                       key={pkg.id}
-                      className="grid gap-3 rounded-lg border border-slate-800 bg-slate-950 p-4 md:grid-cols-3"
+                      className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-3"
                     >
                       <div>
                         <p className="font-semibold">{pkg.name}</p>
@@ -1756,7 +1756,7 @@ export default function Home() {
                           value={pkg.price}
                           disabled={!isAdmin}
                           onChange={(e) => savePackagePrice(pkg.id, Number(e.target.value))}
-                          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2"
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         />
                       </Field>
                       <div>
@@ -1771,14 +1771,14 @@ export default function Home() {
 
             {activeTab === "simulator" && (
               <section className="grid gap-4 lg:grid-cols-2">
-                <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                   <h2 className="mb-4 text-lg font-semibold">Commission Simulator</h2>
                   <div className="space-y-3">
                     <Field label="Package">
                       <select
                         value={simPackageId}
                         onChange={(e) => onSimPackageChange(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       >
                         {packages.map((pkg) => (
                           <option key={pkg.id} value={pkg.id}>
@@ -1793,7 +1793,7 @@ export default function Home() {
                         min={0}
                         value={simReferralSales}
                         onChange={(e) => setSimReferralSales(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Left leg volume (USD)">
@@ -1802,7 +1802,7 @@ export default function Home() {
                         min={0}
                         value={simLeftVolume}
                         onChange={(e) => setSimLeftVolume(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Right leg volume (USD)">
@@ -1811,11 +1811,11 @@ export default function Home() {
                         min={0}
                         value={simRightVolume}
                         onChange={(e) => setSimRightVolume(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
-                    <div className="rounded-lg border border-slate-800 bg-slate-950 p-3">
-                      <p className="mb-2 text-sm text-slate-300">Level sales for match bonus</p>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <p className="mb-2 text-sm text-slate-600">Level sales for match bonus</p>
                       <div className="grid gap-2 sm:grid-cols-2">
                         {simRatios.map((ratio, idx) => (
                           <label key={`${ratio}-${idx}`} className="text-xs">
@@ -1831,7 +1831,7 @@ export default function Home() {
                                 copy[idx] = Number(e.target.value);
                                 setSimLevelSales(copy);
                               }}
-                              className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2"
+                              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                             />
                           </label>
                         ))}
@@ -1839,7 +1839,7 @@ export default function Home() {
                     </div>
                   </div>
                 </article>
-                <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                   <h3 className="mb-4 text-lg font-semibold">Calculated Payout</h3>
                   <div className="space-y-3">
                     <PayoutRow label="Referral bonus" value={simPayout.referralBonus} />
@@ -1855,21 +1855,21 @@ export default function Home() {
             {activeTab === "members" && (
               <section className="space-y-4">
                 {isAdmin && (
-                  <form onSubmit={onAddMember} className="grid gap-3 rounded-xl border border-slate-800 bg-slate-900 p-5 md:grid-cols-3">
+                  <form onSubmit={onAddMember} className="grid gap-3 rounded-xl border border-slate-200 bg-white shadow-sm p-5 md:grid-cols-3">
                     <h2 className="md:col-span-3 text-lg font-semibold">Add Member</h2>
                     <Field label="Full name">
                       <input
                         required
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Package">
                       <select
                         value={newPackageId}
                         onChange={(e) => setNewPackageId(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       >
                         {packages.map((pkg) => (
                           <option key={pkg.id} value={pkg.id}>
@@ -1882,7 +1882,7 @@ export default function Home() {
                       <input
                         value={newPhoneNumber}
                         onChange={(e) => setNewPhoneNumber(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         placeholder="07... or 254..."
                       />
                     </Field>
@@ -1892,7 +1892,7 @@ export default function Home() {
                         min={0}
                         value={newReferralSales}
                         onChange={(e) => setNewReferralSales(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Left volume (USD)">
@@ -1901,7 +1901,7 @@ export default function Home() {
                         min={0}
                         value={newLeftVolume}
                         onChange={(e) => setNewLeftVolume(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Right volume (USD)">
@@ -1910,13 +1910,13 @@ export default function Home() {
                         min={0}
                         value={newRightVolume}
                         onChange={(e) => setNewRightVolume(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <div className="flex items-end">
                       <button
                         type="submit"
-                        className="w-full rounded-md bg-cyan-400 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-300"
+                        className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                       >
                         Save Member
                       </button>
@@ -1924,9 +1924,9 @@ export default function Home() {
                   </form>
                 )}
 
-                <article className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-2">
+                <article className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm p-2">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">Name</th>
                         <th className="px-3 py-2">Package</th>
@@ -1938,7 +1938,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {memberRows.map((row) => (
-                        <tr key={row.member.id} className="border-t border-slate-800">
+                        <tr key={row.member.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{row.member.name}</td>
                           <td className="px-3 py-2">{row.tier?.name ?? row.member.packageId}</td>
                           <td className="px-3 py-2">{row.member.rank ?? "STARTER"}</td>
@@ -1967,11 +1967,11 @@ export default function Home() {
             )}
 
             {activeTab === "transactions" && (
-              <section className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                 <h2 className="mb-3 text-lg font-semibold">Wallet Transactions</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">Date</th>
                         <th className="px-3 py-2">Member</th>
@@ -1982,7 +1982,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {transactions.map((tx) => (
-                        <tr key={tx.id} className="border-t border-slate-800">
+                        <tr key={tx.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{new Date(tx.createdAt).toLocaleString()}</td>
                           <td className="px-3 py-2">{tx.memberName}</td>
                           <td className="px-3 py-2">{tx.type}</td>
@@ -2001,11 +2001,11 @@ export default function Home() {
                 {!isAdmin && (
                   <form
                     onSubmit={requestDeposit}
-                    className="grid gap-3 rounded-xl border border-slate-800 bg-slate-900 p-5 md:grid-cols-3"
+                    className="grid gap-3 rounded-xl border border-slate-200 bg-white shadow-sm p-5 md:grid-cols-3"
                   >
                     <div className="md:col-span-3">
                       <h2 className="text-lg font-semibold">Deposit via M-Pesa Express (STK)</h2>
-                      <p className="text-sm text-slate-300">
+                      <p className="text-sm text-slate-600">
                         Submit amount and phone, then approve the STK prompt on your handset.
                       </p>
                     </div>
@@ -2016,7 +2016,7 @@ export default function Home() {
                         step="1"
                         value={depositAmount}
                         onChange={(e) => setDepositAmount(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         required
                       />
                     </Field>
@@ -2024,7 +2024,7 @@ export default function Home() {
                       <input
                         value={depositPhoneNumber}
                         onChange={(e) => setDepositPhoneNumber(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         required
                       />
                     </Field>
@@ -2039,9 +2039,9 @@ export default function Home() {
                   </form>
                 )}
 
-                <article className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-2">
+                <article className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm p-2">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">Date</th>
                         <th className="px-3 py-2">Member</th>
@@ -2053,7 +2053,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {deposits.map((row) => (
-                        <tr key={row.id} className="border-t border-slate-800">
+                        <tr key={row.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{new Date(row.createdAt).toLocaleString()}</td>
                           <td className="px-3 py-2">{row.memberName}</td>
                           <td className="px-3 py-2">{row.phoneNumber}</td>
@@ -2073,11 +2073,11 @@ export default function Home() {
                 {!isAdmin && (
                   <form
                     onSubmit={requestWithdrawal}
-                    className="grid gap-3 rounded-xl border border-slate-800 bg-slate-900 p-5 md:grid-cols-3"
+                    className="grid gap-3 rounded-xl border border-slate-200 bg-white shadow-sm p-5 md:grid-cols-3"
                   >
                     <div className="md:col-span-3">
                       <h2 className="text-lg font-semibold">Request Withdrawal</h2>
-                      <p className="text-sm text-slate-300">
+                      <p className="text-sm text-slate-600">
                         Available balance: {money(availableBalance)}
                       </p>
                     </div>
@@ -2088,7 +2088,7 @@ export default function Home() {
                         step="0.01"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(Number(e.target.value))}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         required
                       />
                     </Field>
@@ -2096,7 +2096,7 @@ export default function Home() {
                       <input
                         value={withdrawPhoneNumber}
                         onChange={(e) => setWithdrawPhoneNumber(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         required
                       />
                     </Field>
@@ -2104,13 +2104,13 @@ export default function Home() {
                       <input
                         value={withdrawNote}
                         onChange={(e) => setWithdrawNote(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <div className="flex items-end">
                       <button
                         type="submit"
-                        className="w-full rounded-md bg-amber-500 px-4 py-2 font-semibold text-white hover:bg-amber-400"
+                        className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                       >
                         Submit Request
                       </button>
@@ -2118,9 +2118,9 @@ export default function Home() {
                   </form>
                 )}
 
-                <article className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-2">
+                <article className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm p-2">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">Date</th>
                         <th className="px-3 py-2">Member</th>
@@ -2135,7 +2135,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {withdrawals.map((row) => (
-                        <tr key={row.id} className="border-t border-slate-800">
+                        <tr key={row.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{new Date(row.createdAt).toLocaleString()}</td>
                           <td className="px-3 py-2">{row.memberName}</td>
                           <td className="px-3 py-2">{row.phoneNumber ?? "-"}</td>
@@ -2175,11 +2175,11 @@ export default function Home() {
             )}
 
             {activeTab === "audit" && (
-              <section className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                 <h2 className="mb-3 text-lg font-semibold">Audit Log</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">Date</th>
                         <th className="px-3 py-2">Actor</th>
@@ -2189,7 +2189,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {auditLogs.map((log) => (
-                        <tr key={log.id} className="border-t border-slate-800">
+                        <tr key={log.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{new Date(log.createdAt).toLocaleString()}</td>
                           <td className="px-3 py-2">{log.actorName}</td>
                           <td className="px-3 py-2">{log.action}</td>
@@ -2222,14 +2222,14 @@ export default function Home() {
                 {!isAdmin && (
                   <form
                     onSubmit={createSupportTicket}
-                    className="grid gap-3 rounded-xl border border-slate-800 bg-slate-900 p-5 md:grid-cols-2"
+                    className="grid gap-3 rounded-xl border border-slate-200 bg-white shadow-sm p-5 md:grid-cols-2"
                   >
                     <h2 className="md:col-span-2 text-lg font-semibold">Create Support Ticket</h2>
                     <Field label="Subject">
                       <input
                         value={supportSubject}
                         onChange={(e) => setSupportSubject(e.target.value)}
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                         required
                       />
                     </Field>
@@ -2238,7 +2238,7 @@ export default function Home() {
                         <textarea
                           value={supportMessage}
                           onChange={(e) => setSupportMessage(e.target.value)}
-                          className="h-28 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                          className="h-28 w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                           required
                         />
                       </Field>
@@ -2246,7 +2246,7 @@ export default function Home() {
                     <div className="md:col-span-2 flex justify-end">
                       <button
                         type="submit"
-                        className="rounded-md bg-cyan-400 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-300"
+                        className="rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                       >
                         Submit Ticket
                       </button>
@@ -2256,16 +2256,16 @@ export default function Home() {
 
                 <div className="space-y-3">
                   {supportTickets.map((ticket) => (
-                    <article key={ticket.id} className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                    <article key={ticket.id} className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <h3 className="font-semibold">{ticket.subject}</h3>
-                          <p className="text-sm text-slate-300">
+                          <p className="text-sm text-slate-600">
                             {ticket.memberName} • {new Date(ticket.createdAt).toLocaleString()}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="rounded bg-slate-800 px-2 py-1 text-xs">{ticket.status}</span>
+                          <span className="rounded bg-slate-200 px-2 py-1 text-xs text-slate-800">{ticket.status}</span>
                           {isAdmin && (
                             <select
                               value={ticket.status}
@@ -2275,7 +2275,7 @@ export default function Home() {
                                   e.target.value as "OPEN" | "PENDING" | "CLOSED",
                                 )
                               }
-                              className="rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs"
+                              className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs"
                             >
                               <option value="OPEN">OPEN</option>
                               <option value="PENDING">PENDING</option>
@@ -2285,19 +2285,19 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <p className="mt-3 text-sm text-slate-200">{ticket.message}</p>
+                      <p className="mt-3 text-sm text-slate-700">{ticket.message}</p>
 
-                      <div className="mt-4 space-y-2 rounded-lg border border-slate-800 bg-slate-950 p-3">
+                      <div className="mt-4 space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
                         <p className="text-xs uppercase tracking-wide text-slate-400">Replies</p>
                         {ticket.replies.length === 0 && (
                           <p className="text-sm text-slate-400">No replies yet.</p>
                         )}
                         {ticket.replies.map((reply) => (
-                          <div key={reply.id} className="rounded bg-slate-900 p-2">
+                          <div key={reply.id} className="rounded bg-slate-100 p-2">
                             <p className="text-xs text-slate-400">
                               {reply.userName} • {new Date(reply.createdAt).toLocaleString()}
                             </p>
-                            <p className="text-sm text-slate-200">{reply.message}</p>
+                            <p className="text-sm text-slate-700">{reply.message}</p>
                           </div>
                         ))}
                       </div>
@@ -2310,7 +2310,7 @@ export default function Home() {
                               setReplyMessageByTicket((prev) => ({ ...prev, [ticket.id]: e.target.value }))
                             }
                             placeholder="Write a reply..."
-                            className="flex-1 rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                            className="flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                           />
                           <button
                             onClick={() => sendTicketReply(ticket.id)}
@@ -2328,7 +2328,7 @@ export default function Home() {
 
             {activeTab === "notifications" && (
               <section className="space-y-4">
-                <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                   <h2 className="text-lg font-semibold">Notifications</h2>
                   <button
                     onClick={markAllNotificationsRead}
@@ -2339,7 +2339,7 @@ export default function Home() {
                 </div>
                 <div className="space-y-2">
                   {notifications.length === 0 && (
-                    <p className="rounded-xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-300">
+                    <p className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 text-sm text-slate-600">
                       No notifications yet.
                     </p>
                   )}
@@ -2348,8 +2348,8 @@ export default function Home() {
                       key={item.id}
                       className={`rounded-xl border p-4 ${
                         item.isRead
-                          ? "border-slate-800 bg-slate-900"
-                          : "border-cyan-700 bg-cyan-950/30"
+                          ? "border-slate-200 bg-white shadow-sm"
+                          : "border-ayur-green/40 bg-ayur-green/5"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -2358,12 +2358,12 @@ export default function Home() {
                           {new Date(item.createdAt).toLocaleString()}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-slate-200">{item.message}</p>
+                      <p className="mt-1 text-sm text-slate-700">{item.message}</p>
                       <div className="mt-3 flex gap-2">
                         {!item.isRead && (
                           <button
                             onClick={() => markNotificationRead(item.id)}
-                            className="rounded bg-cyan-700 px-2 py-1 text-xs hover:bg-cyan-600"
+                            className="rounded bg-ayur-green px-2 py-1 text-xs text-white hover:bg-ayur-green/90"
                           >
                             Mark read
                           </button>
@@ -2390,11 +2390,11 @@ export default function Home() {
             )}
 
             {activeTab === "sms" && isAdmin && (
-              <section className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+              <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
                 <h2 className="mb-3 text-lg font-semibold">SMS Delivery Logs</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="text-left text-slate-300">
+                    <thead className="text-left text-ayur-maroon/80">
                       <tr>
                         <th className="px-3 py-2">Date</th>
                         <th className="px-3 py-2">Recipient</th>
@@ -2406,7 +2406,7 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {smsLogs.map((row) => (
-                        <tr key={row.id} className="border-t border-slate-800">
+                        <tr key={row.id} className="border-t border-slate-200">
                           <td className="px-3 py-2">{new Date(row.createdAt).toLocaleString()}</td>
                           <td className="px-3 py-2">
                             {(row.userName || row.memberName || "Unknown") + ` (${row.toPhone})`}
@@ -2425,7 +2425,7 @@ export default function Home() {
 
             {activeTab === "settings" && (
               <section className="grid gap-4 md:grid-cols-2">
-                <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                   <h2 className="mb-4 text-lg font-semibold">Bonus Percentages</h2>
                   <div className="space-y-3">
                     <Field label="Referral bonus %">
@@ -2438,7 +2438,7 @@ export default function Home() {
                         onChange={(e) =>
                           saveSettings({ ...settings, referralPercent: Number(e.target.value) })
                         }
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                     <Field label="Binary bonus %">
@@ -2451,7 +2451,7 @@ export default function Home() {
                         onChange={(e) =>
                           saveSettings({ ...settings, binaryPercent: Number(e.target.value) })
                         }
-                        className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+                        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
                   </div>
@@ -2477,7 +2477,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 function MetricCard({ title, value }: { title: string; value: string }) {
   return (
-    <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+    <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
       <p className="text-sm text-slate-400">{title}</p>
       <p className="mt-2 text-2xl font-bold">{value}</p>
     </article>
@@ -2487,8 +2487,8 @@ function MetricCard({ title, value }: { title: string; value: string }) {
 function PayoutRow({ label, value, strong }: { label: string; value: number; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <p className="text-slate-300">{label}</p>
-      <p className={strong ? "text-xl font-bold text-cyan-300" : "font-semibold"}>{money(value)}</p>
+      <p className="text-slate-700">{label}</p>
+      <p className={strong ? "text-xl font-bold text-ayur-green" : "font-semibold"}>{money(value)}</p>
     </div>
   );
 }
