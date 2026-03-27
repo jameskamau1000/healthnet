@@ -1,5 +1,6 @@
 import { hash } from "bcryptjs";
 import { calculatePayout } from "@/lib/compensation";
+import { processQualifyingVolume } from "@/lib/everhealthy-engine";
 import { councilStatusFromPackageId, rankFromPackageId } from "@/lib/member-rules";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
@@ -46,7 +47,7 @@ export async function registerMemberAccount(input: RegisterMemberInput) {
       binaryPosition = slot.binaryPosition;
     }
 
-    return tx.user.create({
+    const created = await tx.user.create({
       data: {
         email,
         name,
@@ -69,6 +70,18 @@ export async function registerMemberAccount(input: RegisterMemberInput) {
       },
       include: { memberProfile: true },
     });
+
+    if (created.memberProfile) {
+      await processQualifyingVolume(tx, {
+        originMemberId: created.memberProfile.id,
+        bvAmount: tier.price,
+        pvAmount: tier.price,
+        source: { kind: "registration", packageLabel: tier.name },
+        originMemberDisplayName: name,
+      });
+    }
+
+    return created;
   });
 
   await createAuditLog({
@@ -112,6 +125,7 @@ export async function createMemberByAdmin(input: CreateMemberInput, actorUserId:
       id: "new-member",
       name: input.name,
       packageId: input.packageId,
+      personalVolume: 0,
       directReferralSales: input.directReferralSales,
       leftVolume: input.leftVolume,
       rightVolume: input.rightVolume,
@@ -134,7 +148,13 @@ export async function createMemberByAdmin(input: CreateMemberInput, actorUserId:
   const member = await prisma.$transaction(async (tx) => {
     const createdMember = await tx.member.create({
       data: {
-        ...input,
+        name: input.name,
+        phoneNumber: input.phoneNumber,
+        packageId: input.packageId,
+        directReferralSales: input.directReferralSales,
+        leftVolume: input.leftVolume,
+        rightVolume: input.rightVolume,
+        personalVolume: 0,
         levelSales,
         rank: rankFromPackageId(input.packageId),
         councilStatus: councilStatusFromPackageId(input.packageId),
@@ -195,6 +215,7 @@ export async function createMemberByAdmin(input: CreateMemberInput, actorUserId:
       packageId: member.packageId,
       rank: member.rank,
       councilStatus: member.councilStatus,
+      personalVolume: member.personalVolume,
       directReferralSales: member.directReferralSales,
       leftVolume: member.leftVolume,
       rightVolume: member.rightVolume,

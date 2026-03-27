@@ -20,6 +20,7 @@ export type MemberRecord = {
   binaryPosition?: "LEFT" | "RIGHT" | null;
   rank?: "STARTER" | "FAIR" | "GOOD" | "BETTER" | "BEST" | "COUNCIL";
   councilStatus?: "NONE" | "PENDING" | "APPROVED";
+  personalVolume: number;
   directReferralSales: number;
   leftVolume: number;
   rightVolume: number;

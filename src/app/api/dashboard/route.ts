@@ -151,6 +151,7 @@ export async function GET() {
       binaryPosition: member.binaryPosition,
       rank: member.rank,
       councilStatus: member.councilStatus,
+      personalVolume: member.personalVolume,
       directReferralSales: member.directReferralSales,
       leftVolume: member.leftVolume,
       rightVolume: member.rightVolume,

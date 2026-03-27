@@ -182,6 +182,7 @@ export default function Home() {
   const [newProductCategory, setNewProductCategory] = useState("");
   const [newProductPrice, setNewProductPrice] = useState(0);
   const [newProductDescription, setNewProductDescription] = useState("");
+  const [purchaseBusyId, setPurchaseBusyId] = useState<string | null>(null);
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
   const [newPackageId, setNewPackageId] = useState(defaultPackages[0].id);
   const [newReferralSales, setNewReferralSales] = useState(0);
@@ -297,6 +298,7 @@ export default function Home() {
       id: "sim",
       name: "Simulation",
       packageId: simPackageId,
+      personalVolume: 0,
       directReferralSales: simReferralSales,
       leftVolume: simLeftVolume,
       rightVolume: simRightVolume,
@@ -494,6 +496,7 @@ export default function Home() {
     setMembers(
       typed.members.map((member) => ({
         ...member,
+        personalVolume: member.personalVolume ?? 0,
         levelSales: (member.levelSales as number[]) ?? [],
       })),
     );
@@ -525,6 +528,32 @@ export default function Home() {
         const reconData = await reconResponse.json();
         setRecon(reconData);
       }
+    }
+  }
+
+  async function onPurchaseProduct(productId: string) {
+    if (!user || user.role !== "MEMBER") return;
+    setPurchaseBusyId(productId);
+    setError(null);
+    try {
+      const response = await fetch("/api/member/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error ?? "Purchase failed");
+        return;
+      }
+      setNotice(
+        `Purchase recorded: +${money(data.bv ?? 0)} BV & PV — ${data.productName ?? "product"}. Upline commissions applied.`,
+      );
+      await loadDashboard();
+    } catch {
+      setError("Purchase could not complete");
+    } finally {
+      setPurchaseBusyId(null);
     }
   }
 
@@ -1313,17 +1342,46 @@ export default function Home() {
 
             <div className="space-y-6">
             {activeTab === "overview" && (
-              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                <MetricCard title="Members" value={String(members.length)} />
-                <MetricCard title="Package Sales" value={money(totals.totalSales)} />
-                <MetricCard title="Referral Paid" value={money(totals.totalReferral)} />
-                <MetricCard title="Binary Paid" value={money(totals.totalBinary)} />
-                <MetricCard title="Match Paid" value={money(totals.totalMatch)} />
+              <section className="space-y-4">
+                {isAdmin ? (
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                    <MetricCard title="Members" value={String(members.length)} />
+                    <MetricCard title="Package Sales" value={money(totals.totalSales)} />
+                    <MetricCard title="Referral (formula)" value={money(totals.totalReferral)} />
+                    <MetricCard title="Binary (formula)" value={money(totals.totalBinary)} />
+                    <MetricCard title="Match (formula)" value={money(totals.totalMatch)} />
+                  </div>
+                ) : currentMember ? (
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <MetricCard title="Personal volume (PV)" value={money(currentMember.personalVolume ?? 0)} />
+                    <MetricCard title="Left leg BV" value={money(currentMember.leftVolume ?? 0)} />
+                    <MetricCard title="Right leg BV" value={money(currentMember.rightVolume ?? 0)} />
+                    <MetricCard title="Direct team BV" value={money(currentMember.directReferralSales ?? 0)} />
+                  </div>
+                ) : null}
+                {!isAdmin && currentMember && (
+                  <article className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
+                    <p className="font-semibold text-slate-900">How volume works</p>
+                    <p className="mt-2">
+                      <strong>PV</strong> is your personal volume from your package activation and product purchases.{" "}
+                      <strong>BV</strong> flows up your binary legs when you or your team generate qualifying volume.
+                      Referral and matching bonuses credit your sponsor; binary pays upline on newly matched leg volume.
+                    </p>
+                  </article>
+                )}
               </section>
             )}
 
             {activeTab === "tree" && (
               <section className="space-y-4">
+                <article className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
+                  <p className="font-semibold text-slate-900">Binary tree & BV</p>
+                  <p className="mt-2">
+                    New members join under your left or right referral links. Qualifying volume (package price on
+                    registration, product purchases) adds <strong>BV</strong> up each upline leg and triggers referral,
+                    binary, and matching payouts per plan rules.
+                  </p>
+                </article>
                 <div className="grid gap-4 md:grid-cols-3">
                   <MetricCard title="Direct Referrals" value={String(treeDirectReferrals)} />
                   <MetricCard title="Total Downline" value={String(treeTotalDownline)} />
@@ -1648,17 +1706,34 @@ export default function Home() {
                         </span>
                       </div>
                       <p className="mt-3 text-sm text-slate-600">{product.description}</p>
-                      <div className="mt-4 flex items-center justify-between">
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
                         <p className="text-base font-bold text-ayur-green">{money(product.price)}</p>
-                        {isAdmin && (
-                          <button
-                            onClick={() => toggleProductStatus(product.id, product.isActive)}
-                            className="rounded bg-ayur-maroon px-3 py-1 text-xs text-white hover:bg-ayur-maroon/90"
-                          >
-                            {product.isActive ? "Hide" : "Activate"}
-                          </button>
-                        )}
+                        <div className="flex flex-wrap gap-2">
+                          {!isAdmin && product.isActive && (
+                            <button
+                              type="button"
+                              disabled={purchaseBusyId === product.id}
+                              onClick={() => onPurchaseProduct(product.id)}
+                              className="rounded-md bg-ayur-green px-3 py-2 text-xs font-semibold text-white hover:bg-ayur-green/90 disabled:opacity-60"
+                            >
+                              {purchaseBusyId === product.id ? "Applying…" : "Buy (BV/PV)"}
+                            </button>
+                          )}
+                          {isAdmin && (
+                            <button
+                              onClick={() => toggleProductStatus(product.id, product.isActive)}
+                              className="rounded bg-ayur-maroon px-3 py-1 text-xs text-white hover:bg-ayur-maroon/90"
+                            >
+                              {product.isActive ? "Hide" : "Activate"}
+                            </button>
+                          )}
+                        </div>
                       </div>
+                      {!isAdmin && product.isActive && (
+                        <p className="mt-2 text-xs text-slate-500">
+                          Price equals qualifying BV/PV; purchase credits your PV and flows BV to your upline per plan.
+                        </p>
+                      )}
                     </article>
                   ))}
                 </div>
@@ -1787,7 +1862,7 @@ export default function Home() {
                         ))}
                       </select>
                     </Field>
-                    <Field label="Direct referral sales (USD)">
+                    <Field label="Direct team BV (from personally sponsored volume)">
                       <input
                         type="number"
                         min={0}
@@ -1796,7 +1871,7 @@ export default function Home() {
                         className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
-                    <Field label="Left leg volume (USD)">
+                    <Field label="Left leg BV">
                       <input
                         type="number"
                         min={0}
@@ -1805,7 +1880,7 @@ export default function Home() {
                         className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
-                    <Field label="Right leg volume (USD)">
+                    <Field label="Right leg BV">
                       <input
                         type="number"
                         min={0}
@@ -1886,7 +1961,7 @@ export default function Home() {
                         placeholder="07... or 254..."
                       />
                     </Field>
-                    <Field label="Direct referral sales (USD)">
+                    <Field label="Direct team BV (demo)">
                       <input
                         type="number"
                         min={0}
@@ -1895,7 +1970,7 @@ export default function Home() {
                         className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
-                    <Field label="Left volume (USD)">
+                    <Field label="Left leg BV (demo)">
                       <input
                         type="number"
                         min={0}
@@ -1904,7 +1979,7 @@ export default function Home() {
                         className="w-full rounded-md border border-slate-300 bg-white px-3 py-2"
                       />
                     </Field>
-                    <Field label="Right volume (USD)">
+                    <Field label="Right leg BV (demo)">
                       <input
                         type="number"
                         min={0}
@@ -1932,7 +2007,11 @@ export default function Home() {
                         <th className="px-3 py-2">Package</th>
                         <th className="px-3 py-2">Rank</th>
                         <th className="px-3 py-2">Council</th>
-                        <th className="px-3 py-2">Total</th>
+                        <th className="px-3 py-2">PV</th>
+                        <th className="px-3 py-2">L-BV</th>
+                        <th className="px-3 py-2">R-BV</th>
+                        <th className="px-3 py-2">Dir BV</th>
+                        <th className="px-3 py-2">Est. bonus</th>
                         {isAdmin && <th className="px-3 py-2">Action</th>}
                       </tr>
                     </thead>
@@ -1943,6 +2022,10 @@ export default function Home() {
                           <td className="px-3 py-2">{row.tier?.name ?? row.member.packageId}</td>
                           <td className="px-3 py-2">{row.member.rank ?? "STARTER"}</td>
                           <td className="px-3 py-2">{row.member.councilStatus ?? "NONE"}</td>
+                          <td className="px-3 py-2">{money(row.member.personalVolume ?? 0)}</td>
+                          <td className="px-3 py-2">{money(row.member.leftVolume ?? 0)}</td>
+                          <td className="px-3 py-2">{money(row.member.rightVolume ?? 0)}</td>
+                          <td className="px-3 py-2">{money(row.member.directReferralSales ?? 0)}</td>
                           <td className="px-3 py-2 font-semibold">{money(row.payout.totalBonus)}</td>
                           {isAdmin && (
                             <td className="px-3 py-2">

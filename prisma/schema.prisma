@@ -134,8 +134,13 @@ model Member {
   binaryPosition      BinaryPosition?
   rank                MemberRank      @default(STARTER)
   councilStatus       CouncilStatus   @default(NONE)
+  /// Cumulative personal volume (PV) from own package activation & product purchases
+  personalVolume      Float           @default(0)
+  /// BV credited from personally sponsored members’ purchases (reporting)
   directReferralSales Float           @default(0)
+  /// Total business volume (BV) in the left binary leg
   leftVolume          Float           @default(0)
+  /// Total business volume (BV) in the right binary leg
   rightVolume         Float           @default(0)
   levelSales          Json
   transactions        WalletTransaction[]
