@@ -60,6 +60,16 @@ enum BinaryPosition {
   RIGHT
 }
 
+enum OtpPurpose {
+  LOGIN
+  REGISTER
+  WITHDRAWAL
+}
+
+enum OtpChannel {
+  EMAIL
+}
+
 model User {
   id            String       @id @default(cuid())
   email         String       @unique
@@ -76,6 +86,7 @@ model User {
   supportReplies SupportReply[]
   notifications Notification[]
   smsLogs       SmsDeliveryLog[]
+  otpChallenges OtpChallenge[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -148,6 +159,7 @@ model Member {
   deposits            DepositRequest[]
   supportTickets      SupportTicket[]
   smsLogs             SmsDeliveryLog[]
+  otpChallenges       OtpChallenge[]
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
 
@@ -252,4 +264,26 @@ model SmsDeliveryLog {
   error       String?
   responseRaw Json?
   createdAt   DateTime @default(now())
+}
+
+model OtpChallenge {
+  id                String      @id @default(cuid())
+  purpose           OtpPurpose
+  channel           OtpChannel  @default(EMAIL)
+  recipient         String
+  codeHash          String
+  payload           Json?
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  memberId          String?
+  member            Member?     @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  expiresAt         DateTime
+  resendAvailableAt DateTime
+  attemptsRemaining Int         @default(5)
+  consumedAt        DateTime?
+  createdAt         DateTime    @default(now())
+
+  @@index([purpose, recipient, createdAt])
+  @@index([userId, purpose, createdAt])
+  @@index([memberId, purpose, createdAt])
 }

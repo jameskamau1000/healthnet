@@ -1,26 +1,75 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ensureBootstrapData } from "@/lib/bootstrap";
-import { loginWithEmail } from "@/lib/auth";
+import { createSessionForUser, verifyEmailPassword } from "@/lib/auth";
+import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
+import { OtpPurpose } from "@prisma/client";
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
+const verifySchema = z.object({
+  challengeId: z.string().min(1),
+  otpCode: z.string().length(6),
+});
 
 export async function POST(request: Request) {
   await ensureBootstrapData();
   const body = await request.json();
-  const parsed = loginSchema.safeParse(body);
+  if (body?.challengeId && body?.otpCode) {
+    const parsedVerify = verifySchema.safeParse(body);
+    if (!parsedVerify.success) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
 
+    const verified = await verifyEmailOtp({
+      challengeId: parsedVerify.data.challengeId,
+      code: parsedVerify.data.otpCode,
+      purpose: OtpPurpose.LOGIN,
+    });
+    if (!verified.ok) {
+      return NextResponse.json({ error: verified.error }, { status: 400 });
+    }
+
+    if (!verified.challenge.userId) {
+      return NextResponse.json({ error: "Invalid OTP challenge." }, { status: 400 });
+    }
+
+    await createSessionForUser(verified.challenge.userId);
+    return NextResponse.json({ userId: verified.challenge.userId, verified: true });
+  }
+
+  const parsed = loginSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  const user = await loginWithEmail(parsed.data.email, parsed.data.password);
+  const user = await verifyEmailPassword(parsed.data.email, parsed.data.password);
   if (!user) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
-  return NextResponse.json({ user });
+  let issued;
+  try {
+    issued = await issueEmailOtp({
+      purpose: OtpPurpose.LOGIN,
+      recipientEmail: user.email,
+      actorUserId: user.id,
+      userId: user.id,
+      payload: { email: user.email },
+    });
+  } catch {
+    return NextResponse.json({ error: "Could not send OTP email. Please try again." }, { status: 500 });
+  }
+  if (!issued.ok) {
+    return NextResponse.json({ error: issued.error }, { status: 429 });
+  }
+
+  return NextResponse.json({
+    otpRequired: true,
+    challengeId: issued.challengeId,
+    expiresAt: issued.expiresAt,
+    resendAvailableAt: issued.resendAvailableAt,
+  });
 }

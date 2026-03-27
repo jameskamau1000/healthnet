@@ -25,6 +25,10 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [hint, setHint] = useState<string | null>(null);
+  const [loginChallengeId, setLoginChallengeId] = useState<string | null>(null);
+  const [loginOtpCode, setLoginOtpCode] = useState("");
+  const [registerChallengeId, setRegisterChallengeId] = useState<string | null>(null);
+  const [registerOtpCode, setRegisterOtpCode] = useState("");
 
   useEffect(() => {
     const tab = new URLSearchParams(window.location.search).get("tab");
@@ -57,11 +61,22 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        body: loginChallengeId
+          ? JSON.stringify({ challengeId: loginChallengeId, otpCode: loginOtpCode })
+          : JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
-      const data = (await response.json()) as { error?: string };
+      const data = (await response.json()) as {
+        error?: string;
+        otpRequired?: boolean;
+        challengeId?: string;
+      };
       if (!response.ok) {
         setError(data.error ?? "Login failed");
+        return;
+      }
+      if (data.otpRequired && data.challengeId) {
+        setLoginChallengeId(data.challengeId);
+        setNotice("OTP sent to your email. Enter it below to complete login.");
         return;
       }
       router.push("/");
@@ -83,19 +98,31 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: regName,
-          email: regEmail,
-          password: regPassword,
-          phoneNumber: regPhoneNumber || undefined,
-          packageId: regPackageId,
-          referralCode: regReferralCode || undefined,
-          position: regReferralCode ? regPosition : undefined,
-        }),
+        body: registerChallengeId
+          ? JSON.stringify({ challengeId: registerChallengeId, otpCode: registerOtpCode })
+          : JSON.stringify({
+              name: regName,
+              email: regEmail,
+              password: regPassword,
+              phoneNumber: regPhoneNumber || undefined,
+              packageId: regPackageId,
+              referralCode: regReferralCode || undefined,
+              position: regReferralCode ? regPosition : undefined,
+            }),
       });
-      const data = (await response.json()) as { error?: string; name?: string };
+      const data = (await response.json()) as {
+        error?: string;
+        name?: string;
+        otpRequired?: boolean;
+        challengeId?: string;
+      };
       if (!response.ok) {
         setError(data.error ?? "Registration failed");
+        return;
+      }
+      if (data.otpRequired && data.challengeId) {
+        setRegisterChallengeId(data.challengeId);
+        setNotice("OTP sent to your email. Enter it below to complete registration.");
         return;
       }
       setNotice(`Account created for ${data.name ?? "member"}. You can now sign in.`);
@@ -107,6 +134,8 @@ export default function LoginPage() {
       setRegPhoneNumber("");
       setRegReferralCode("");
       setRegPosition("left");
+      setRegisterChallengeId(null);
+      setRegisterOtpCode("");
       setMode("login");
       router.replace("/login");
     } catch {
@@ -134,6 +163,8 @@ export default function LoginPage() {
               type="button"
               onClick={() => {
                 setMode("login");
+                setError(null);
+                setNotice(null);
                 router.replace("/login");
               }}
               className={`rounded-md px-3 py-2 text-sm font-semibold ${
@@ -146,6 +177,8 @@ export default function LoginPage() {
               type="button"
               onClick={() => {
                 setMode("register");
+                setError(null);
+                setNotice(null);
                 router.replace("/login?tab=register");
               }}
               className={`rounded-md px-3 py-2 text-sm font-semibold ${
@@ -189,13 +222,27 @@ export default function LoginPage() {
                   required
                 />
               </label>
+              {loginChallengeId && (
+                <label className="block text-sm">
+                  <span className="mb-1 block text-slate-600">One-time code (OTP)</span>
+                  <input
+                    value={loginOtpCode}
+                    onChange={(e) => setLoginOtpCode(e.target.value)}
+                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
+                    placeholder="6-digit code"
+                    minLength={6}
+                    maxLength={6}
+                    required
+                  />
+                </label>
+              )}
 
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90 disabled:opacity-70"
               >
-                {loading ? "Signing in..." : "Sign in"}
+                {loading ? "Signing in..." : loginChallengeId ? "Verify OTP and sign in" : "Sign in"}
               </button>
             </form>
           ) : (
@@ -273,12 +320,30 @@ export default function LoginPage() {
                   </select>
                 </label>
               )}
+              {registerChallengeId && (
+                <label className="block text-sm">
+                  <span className="mb-1 block text-slate-600">One-time code (OTP)</span>
+                  <input
+                    value={registerOtpCode}
+                    onChange={(e) => setRegisterOtpCode(e.target.value)}
+                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
+                    placeholder="6-digit code"
+                    minLength={6}
+                    maxLength={6}
+                    required
+                  />
+                </label>
+              )}
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90 disabled:opacity-70"
               >
-                {loading ? "Creating account..." : "Register"}
+                {loading
+                  ? "Creating account..."
+                  : registerChallengeId
+                    ? "Verify OTP and create account"
+                    : "Register"}
               </button>
             </form>
           )}

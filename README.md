@@ -20,6 +20,25 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## OTP + Email Setup (Resend)
+
+The app supports email OTP for registration, login, and withdrawal confirmation.
+Set the following environment variables before using OTP flows:
+
+```bash
+RESEND_API_KEY=re_xxx
+EMAIL_FROM="Ayur Health <no-reply@your-domain.com>"
+APP_BASE_URL=https://ayurhealthint.com
+OTP_SECRET=change-this-secret
+OTP_TTL_MINUTES=10
+OTP_MAX_ATTEMPTS=5
+OTP_RESEND_COOLDOWN_SECONDS=60
+```
+
+- `EMAIL_FROM` must use a sender/domain verified in Resend.
+- If `RESEND_API_KEY` is missing, OTP endpoints will fail safely.
+- SMS OTP is not enabled yet; current phase uses email OTP only.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

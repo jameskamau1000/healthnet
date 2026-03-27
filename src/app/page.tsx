@@ -823,6 +823,7 @@ export default function Home() {
 
   async function requestWithdrawal(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
     const response = await fetch("/api/member/withdrawals", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -835,6 +836,33 @@ export default function Home() {
     const data = await response.json();
     if (!response.ok) {
       setError(data.error ?? "Withdrawal request failed");
+      return;
+    }
+    if (data.otpRequired && data.challengeId) {
+      setNotice("OTP sent to your email. Enter the code to confirm withdrawal.");
+      const otpCode = window.prompt("Enter OTP code sent to your email:");
+      if (!otpCode) {
+        setError("Withdrawal confirmation cancelled. OTP is required.");
+        return;
+      }
+      const verifyRes = await fetch("/api/member/withdrawals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          challengeId: data.challengeId,
+          otpCode: otpCode.trim(),
+        }),
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyRes.ok) {
+        setError(verifyData.error ?? "OTP verification failed");
+        return;
+      }
+      setNotice("Withdrawal request submitted.");
+      setWithdrawAmount(0);
+      setWithdrawPhoneNumber("");
+      setWithdrawNote("");
+      await loadDashboard();
       return;
     }
     setNotice("Withdrawal request submitted.");

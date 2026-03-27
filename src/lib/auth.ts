@@ -13,12 +13,19 @@ export type SafeUser = {
   role: "ADMIN" | "MEMBER";
 };
 
-export async function loginWithEmail(email: string, password: string): Promise<SafeUser | null> {
+export async function verifyEmailPassword(email: string, password: string): Promise<SafeUser | null> {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return null;
 
   const validPassword = await compare(password, user.passwordHash);
   if (!validPassword) return null;
+
+  return { id: user.id, email: user.email, name: user.name, role: user.role };
+}
+
+export async function createSessionForUser(userId: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
 
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
@@ -39,8 +46,13 @@ export async function loginWithEmail(email: string, password: string): Promise<S
     expires: expiresAt,
     path: "/",
   });
+}
 
-  return { id: user.id, email: user.email, name: user.name, role: user.role };
+export async function loginWithEmail(email: string, password: string): Promise<SafeUser | null> {
+  const safe = await verifyEmailPassword(email, password);
+  if (!safe) return null;
+  await createSessionForUser(safe.id);
+  return safe;
 }
 
 export async function logoutSession() {
