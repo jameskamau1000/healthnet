@@ -146,6 +146,7 @@ Ranks/council status are derived from package assignment and admin actions.
 
 - Callback token validation is enabled via `MPESA_CALLBACK_TOKEN`.
 - Sensitive values are sourced from `.env`.
+- If Safaricom issued **separate** Daraja apps for Lipa na M-Pesa (STK) and B2C, set `MPESA_STK_CONSUMER_KEY` / `MPESA_STK_CONSUMER_SECRET` for deposits and `MPESA_B2C_CONSUMER_KEY` / `MPESA_B2C_CONSUMER_SECRET` for withdrawals (see `.env.example`). Run `./scripts/mpesa-oauth-check.sh` to confirm OAuth for each app without starting the server.
 
 ## 8) Demo Tips / Talking Points
 

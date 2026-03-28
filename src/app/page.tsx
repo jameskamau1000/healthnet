@@ -229,8 +229,6 @@ export default function Home() {
   const [treeNodeDetailError, setTreeNodeDetailError] = useState<string | null>(null);
   const [treeDrillStack, setTreeDrillStack] = useState<TreeDrillCrumb[]>([]);
   const [treeViewingOwnTree, setTreeViewingOwnTree] = useState(true);
-  const treeDrillClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const treeDrillLastClickRef = useRef<{ memberId: string; t: number } | null>(null);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
   const [withdrawPhoneNumber, setWithdrawPhoneNumber] = useState("");
   const [depositAmount, setDepositAmount] = useState(0);
@@ -476,12 +474,6 @@ export default function Home() {
   const treeDrillKey = treeDrillStack.map((c) => c.memberId).join(",");
 
   useEffect(() => {
-    return () => {
-      if (treeDrillClickTimerRef.current) clearTimeout(treeDrillClickTimerRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
     const needsTree = activeTab === "tree" || activeTab === "myReferrer";
     if (!user || !needsTree) return;
     let cancelled = false;
@@ -664,24 +656,21 @@ export default function Home() {
 
   function handleTreeNodeActivate(node: ReferralTreeNode) {
     if (node.isPlaceholder || !node.memberId) return;
-    const viewerId = currentMember?.id;
-    if (!viewerId) return;
-    const now = Date.now();
-    const prev = treeDrillLastClickRef.current;
-    if (prev && prev.memberId === node.memberId && now - prev.t < 450) {
-      if (treeDrillClickTimerRef.current) clearTimeout(treeDrillClickTimerRef.current);
-      treeDrillClickTimerRef.current = null;
-      treeDrillLastClickRef.current = null;
-      void openTreeNodeDetails(node);
-      return;
-    }
-    treeDrillLastClickRef.current = { memberId: node.memberId, t: now };
-    treeDrillClickTimerRef.current = setTimeout(() => {
-      treeDrillClickTimerRef.current = null;
-      treeDrillLastClickRef.current = null;
-      const crumbs = buildDrillCrumbsFromClick(node, viewerId, treeNodes);
-      setTreeDrillStack(crumbs);
-    }, 450);
+    void openTreeNodeDetails(node);
+  }
+
+  /** Everhealthy-style: details first; username in the modal drills the tree to that member. */
+  function handleTreeDetailUsernameDrill() {
+    const detail = treeNodeDetail;
+    const viewerMemberId = currentMember?.id;
+    if (!detail?.memberId || !viewerMemberId) return;
+    const node = treeNodes.find((n) => n.memberId === detail.memberId);
+    if (!node) return;
+    const crumbs = buildDrillCrumbsFromClick(node, viewerMemberId, treeNodes);
+    setTreeDrillStack(crumbs);
+    setTreeNodeDetailOpen(false);
+    setTreeNodeDetail(null);
+    setTreeNodeDetailError(null);
   }
 
   async function loadDashboard() {
@@ -1378,7 +1367,8 @@ export default function Home() {
                 <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
                   <h2 className="mb-2 text-lg font-semibold">Binary Tree</h2>
                   <p className="mb-3 text-xs text-slate-500">
-                    Click a member to open their downline (like Everhealthy). Double-click for leg BV/PV details.
+                    Click a member to open user details. In the popup, click their <strong>username</strong> to open
+                    their downline tree (you can keep drilling the same way).
                   </p>
                   <div className="mb-4 flex flex-wrap items-center gap-1 text-sm text-slate-600">
                     <button
@@ -1503,20 +1493,21 @@ export default function Home() {
                       className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-emerald-200/80 bg-white shadow-2xl"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-start justify-between gap-3 border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50/40 px-5 py-4">
-                        <h3 id="tree-node-detail-title" className="text-lg font-semibold text-slate-900">
-                          Member details
+                      <div className="flex items-start justify-between gap-3 border-b border-emerald-100 bg-white px-5 py-3">
+                        <h3 id="tree-node-detail-title" className="text-lg font-bold text-slate-900">
+                          User details
                         </h3>
                         <button
                           type="button"
-                          className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-600 hover:bg-white/80"
+                          className="rounded-lg px-2 py-1 text-lg leading-none font-semibold text-slate-500 hover:bg-slate-100"
+                          aria-label="Close"
                           onClick={() => {
                             setTreeNodeDetailOpen(false);
                             setTreeNodeDetail(null);
                             setTreeNodeDetailError(null);
                           }}
                         >
-                          Close
+                          ×
                         </button>
                       </div>
                       <div className="px-5 py-4">
@@ -1528,19 +1519,33 @@ export default function Home() {
                         )}
                         {treeNodeDetail && !treeNodeDetailLoading && (
                           <>
-                            <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 px-4 py-3">
-                              <p className="text-base font-semibold text-slate-900">{treeNodeDetail.name}</p>
-                              <p className="text-sm text-ayur-green">{treeNodeDetail.rankLabel}</p>
-                              <p className="mt-1 text-sm">
-                                <span className="text-slate-500">Code </span>
-                                <span className="font-mono font-semibold text-sky-700">{treeNodeDetail.displayUsername}</span>
-                              </p>
-                              {treeNodeDetail.packageName && (
-                                <p className="text-xs text-slate-600">Plan: {treeNodeDetail.packageName}</p>
-                              )}
+                            <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-4">
+                              <div className="flex gap-4">
+                                <div
+                                  className="h-16 w-16 shrink-0 rounded-full border-2 border-white bg-slate-200 shadow-inner"
+                                  aria-hidden
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-lg font-bold text-ayur-green">{treeNodeDetail.name}</p>
+                                  <p className="text-sm font-medium text-slate-800">{treeNodeDetail.rankLabel}</p>
+                                  <p className="mt-2 text-sm">
+                                    <span className="text-slate-600">Username: </span>
+                                    <button
+                                      type="button"
+                                      className="font-semibold text-sky-600 underline decoration-sky-400/80 underline-offset-2 hover:text-sky-700"
+                                      onClick={handleTreeDetailUsernameDrill}
+                                    >
+                                      {treeNodeDetail.displayUsername}
+                                    </button>
+                                  </p>
+                                  {treeNodeDetail.packageName && (
+                                    <p className="mt-1 text-xs text-slate-600">Plan: {treeNodeDetail.packageName}</p>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <p className="mt-3 text-sm text-slate-700">
-                              <span className="text-slate-500">Referred by </span>
+                              <span className="text-slate-500">Referred by: </span>
                               <span className="font-medium">{treeNodeDetail.referredByName ?? "—"}</span>
                             </p>
                             <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">

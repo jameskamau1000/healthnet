@@ -1,7 +1,5 @@
 type MpesaConfig = {
   baseUrl: string;
-  consumerKey: string;
-  consumerSecret: string;
   stkShortCode: string;
   passkey: string;
   stkCallbackUrl: string;
@@ -18,8 +16,6 @@ function getConfig(): MpesaConfig {
   return {
     baseUrl:
       env === "sandbox" ? "https://sandbox.safaricom.co.ke" : "https://api.safaricom.co.ke",
-    consumerKey: process.env.MPESA_CONSUMER_KEY ?? "",
-    consumerSecret: process.env.MPESA_CONSUMER_SECRET ?? "",
     stkShortCode: process.env.MPESA_STK_SHORTCODE ?? "",
     passkey: process.env.MPESA_STK_PASSKEY ?? "",
     stkCallbackUrl: process.env.MPESA_STK_CALLBACK_URL ?? "",
@@ -32,8 +28,22 @@ function getConfig(): MpesaConfig {
   };
 }
 
-function hasCoreAuth(config: MpesaConfig): boolean {
-  return Boolean(config.consumerKey && config.consumerSecret);
+/** Lipa na M-Pesa / STK app (can differ from the B2C Daraja app). */
+function resolveStkAuth(): { consumerKey: string; consumerSecret: string } {
+  const consumerKey =
+    process.env.MPESA_STK_CONSUMER_KEY?.trim() || process.env.MPESA_CONSUMER_KEY?.trim() || "";
+  const consumerSecret =
+    process.env.MPESA_STK_CONSUMER_SECRET?.trim() || process.env.MPESA_CONSUMER_SECRET?.trim() || "";
+  return { consumerKey, consumerSecret };
+}
+
+/** B2C payout app (separate consumer key/secret when Safaricom issued two apps). */
+function resolveB2cAuth(): { consumerKey: string; consumerSecret: string } {
+  const consumerKey =
+    process.env.MPESA_B2C_CONSUMER_KEY?.trim() || process.env.MPESA_CONSUMER_KEY?.trim() || "";
+  const consumerSecret =
+    process.env.MPESA_B2C_CONSUMER_SECRET?.trim() || process.env.MPESA_CONSUMER_SECRET?.trim() || "";
+  return { consumerKey, consumerSecret };
 }
 
 function normalizePhone(input: string): string {
@@ -54,17 +64,20 @@ function timestampNow(): string {
   return `${yyyy}${mm}${dd}${hh}${mi}${ss}`;
 }
 
-async function getAccessToken(config: MpesaConfig): Promise<string> {
-  const auth = Buffer.from(`${config.consumerKey}:${config.consumerSecret}`).toString("base64");
-  const response = await fetch(
-    `${config.baseUrl}/oauth/v1/generate?grant_type=client_credentials`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Basic ${auth}`,
-      },
+async function getAccessToken(
+  baseUrl: string,
+  auth: { consumerKey: string; consumerSecret: string },
+): Promise<string> {
+  if (!auth.consumerKey || !auth.consumerSecret) {
+    throw new Error("M-Pesa consumer key/secret are missing");
+  }
+  const basic = Buffer.from(`${auth.consumerKey}:${auth.consumerSecret}`).toString("base64");
+  const response = await fetch(`${baseUrl}/oauth/v1/generate?grant_type=client_credentials`, {
+    method: "GET",
+    headers: {
+      Authorization: `Basic ${basic}`,
     },
-  );
+  });
   const data = (await response.json()) as { access_token?: string };
   if (!response.ok || !data.access_token) {
     throw new Error("Failed to obtain M-Pesa access token");
@@ -79,14 +92,17 @@ export async function initiateStkPush(input: {
   transactionDesc: string;
 }) {
   const config = getConfig();
-  if (!hasCoreAuth(config)) {
-    throw new Error("M-Pesa credentials are not configured");
+  const stkAuth = resolveStkAuth();
+  if (!stkAuth.consumerKey || !stkAuth.consumerSecret) {
+    throw new Error(
+      "M-Pesa STK credentials missing: set MPESA_STK_CONSUMER_KEY/MPESA_STK_CONSUMER_SECRET (or MPESA_CONSUMER_KEY/SECRET)",
+    );
   }
   if (!config.stkShortCode || !config.passkey || !config.stkCallbackUrl) {
-    throw new Error("STK configuration is incomplete");
+    throw new Error("STK configuration is incomplete (shortcode, passkey, callback URL)");
   }
 
-  const token = await getAccessToken(config);
+  const token = await getAccessToken(config.baseUrl, stkAuth);
   const timestamp = timestampNow();
   const password = Buffer.from(`${config.stkShortCode}${config.passkey}${timestamp}`).toString(
     "base64",
@@ -117,6 +133,14 @@ export async function initiateStkPush(input: {
   if (!response.ok) {
     throw new Error((data.errorMessage as string) || "STK push failed");
   }
+  const rc = data.ResponseCode ?? data.responseCode;
+  if (rc !== undefined && String(rc) !== "0") {
+    const msg =
+      (data.CustomerMessage as string) ||
+      (data.errorMessage as string) ||
+      `STK rejected (ResponseCode ${String(rc)})`;
+    throw new Error(msg);
+  }
   return data;
 }
 
@@ -127,8 +151,11 @@ export async function initiateB2CPayout(input: {
   remarks: string;
 }) {
   const config = getConfig();
-  if (!hasCoreAuth(config)) {
-    throw new Error("M-Pesa credentials are not configured");
+  const b2cAuth = resolveB2cAuth();
+  if (!b2cAuth.consumerKey || !b2cAuth.consumerSecret) {
+    throw new Error(
+      "M-Pesa B2C credentials missing: set MPESA_B2C_CONSUMER_KEY/MPESA_B2C_CONSUMER_SECRET (or MPESA_CONSUMER_KEY/SECRET)",
+    );
   }
   if (
     !config.b2cShortCode ||
@@ -140,7 +167,7 @@ export async function initiateB2CPayout(input: {
     throw new Error("B2C configuration is incomplete");
   }
 
-  const token = await getAccessToken(config);
+  const token = await getAccessToken(config.baseUrl, b2cAuth);
   const response = await fetch(`${config.baseUrl}/mpesa/b2c/v1/paymentrequest`, {
     method: "POST",
     headers: {
@@ -164,6 +191,12 @@ export async function initiateB2CPayout(input: {
   const data = (await response.json()) as Record<string, unknown>;
   if (!response.ok) {
     throw new Error((data.errorMessage as string) || "B2C payout request failed");
+  }
+  const rc = data.ResponseCode ?? data.responseCode;
+  if (rc !== undefined && String(rc) !== "0") {
+    throw new Error(
+      (data.errorMessage as string) || `B2C rejected (ResponseCode ${String(rc)})`,
+    );
   }
   return data;
 }
