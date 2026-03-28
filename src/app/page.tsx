@@ -165,6 +165,39 @@ export default function Home() {
   const [treeDirectRows, setTreeDirectRows] = useState<DirectReferralRow[]>([]);
   const [referralLinks, setReferralLinks] = useState<{ leftLink: string; rightLink: string } | null>(null);
   const [treeLoading, setTreeLoading] = useState(false);
+  type TreeNodeDetailResponse = {
+    memberId: string;
+    name: string;
+    displayUsername: string;
+    email: string | null;
+    rankLabel: string;
+    rank: string;
+    packageName: string | null;
+    referredByName: string | null;
+    leftVolume: number;
+    rightVolume: number;
+    personalVolume: number;
+    left: {
+      currentBv: number;
+      currentPv: number;
+      totalBv: number;
+      totalPv: number;
+      paidMembers: number;
+      freeMembers: number;
+    };
+    right: {
+      currentBv: number;
+      currentPv: number;
+      totalBv: number;
+      totalPv: number;
+      paidMembers: number;
+      freeMembers: number;
+    };
+  };
+  const [treeNodeDetailOpen, setTreeNodeDetailOpen] = useState(false);
+  const [treeNodeDetail, setTreeNodeDetail] = useState<TreeNodeDetailResponse | null>(null);
+  const [treeNodeDetailLoading, setTreeNodeDetailLoading] = useState(false);
+  const [treeNodeDetailError, setTreeNodeDetailError] = useState<string | null>(null);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
   const [withdrawPhoneNumber, setWithdrawPhoneNumber] = useState("");
   const [depositAmount, setDepositAmount] = useState(0);
@@ -556,11 +589,36 @@ export default function Home() {
   function treeRingColor(node: ReferralTreeNode): string {
     if (node.isPlaceholder) return "#94a3b8";
     const rank = node.rank ?? "";
+    if (rank === "COUNCIL") return "#5b21b6";
     if (rank === "BEST") return "#7f1d1d";
     if (rank === "BETTER") return "#c9a227";
     if (rank === "GOOD") return "#15803d";
     if (rank === "FAIR") return "#22c55e";
+    if (rank === "STARTER") return "#eab308";
     return "#15803d";
+  }
+
+  async function openTreeNodeDetails(node: ReferralTreeNode) {
+    if (node.isPlaceholder || !node.memberId) return;
+    setTreeNodeDetailOpen(true);
+    setTreeNodeDetail(null);
+    setTreeNodeDetailError(null);
+    setTreeNodeDetailLoading(true);
+    try {
+      const response = await fetch(
+        `/api/member/tree/node-details?memberId=${encodeURIComponent(node.memberId)}`,
+      );
+      const data = (await response.json()) as { error?: string } & Partial<TreeNodeDetailResponse>;
+      if (!response.ok) {
+        setTreeNodeDetailError(data.error ?? "Could not load member details");
+        return;
+      }
+      setTreeNodeDetail(data as TreeNodeDetailResponse);
+    } catch {
+      setTreeNodeDetailError("Could not load member details");
+    } finally {
+      setTreeNodeDetailLoading(false);
+    }
   }
 
   async function loadDashboard() {
@@ -1274,37 +1332,50 @@ export default function Home() {
                           />
                         ))}
                         {treeGraph.nodes.map((node) => (
-                          <g key={node.id}>
+                          <g
+                            key={node.id}
+                            className={node.isPlaceholder ? "" : "cursor-pointer"}
+                            role={node.isPlaceholder ? undefined : "button"}
+                            tabIndex={node.isPlaceholder ? undefined : 0}
+                            onClick={() => void openTreeNodeDetails(node)}
+                            onKeyDown={(e) => {
+                              if (!node.isPlaceholder && (e.key === "Enter" || e.key === " ")) {
+                                e.preventDefault();
+                                void openTreeNodeDetails(node);
+                              }
+                            }}
+                          >
                             <circle cx={node.x} cy={node.y} r={(treeGraph.nodeRadius ?? 34) + 3} fill={treeRingColor(node)} />
                             <circle cx={node.x} cy={node.y} r={treeGraph.nodeRadius ?? 34} fill="#ffffff" stroke="#e2e8f0" strokeWidth="1" />
-                            <text
-                              x={node.x}
-                              y={node.y + 4}
-                              textAnchor="middle"
-                              fill="#334155"
-                              fontSize="11"
-                              fontWeight="600"
-                            >
-                              {node.isPlaceholder ? "No" : "Member"}
-                            </text>
+                            {!node.isPlaceholder && (
+                              <text
+                                x={node.x}
+                                y={node.y + 5}
+                                textAnchor="middle"
+                                fill="#cbd5e1"
+                                fontSize="22"
+                              >
+                                ○
+                              </text>
+                            )}
                             <text
                               x={node.x}
                               y={node.y + (treeGraph.nodeRadius ?? 34) + 18}
                               textAnchor="middle"
                               fill="#0f172a"
-                              fontSize="14"
+                              fontSize="13"
                               fontWeight="600"
                             >
-                              {node.depth === 0 ? "You" : node.name}
+                              {node.isPlaceholder ? "No User" : node.depth === 0 ? "You" : node.referralCode || node.name.split(" ")[0] || "Member"}
                             </text>
                             <text
                               x={node.x}
-                              y={node.y + (treeGraph.nodeRadius ?? 34) + 36}
+                              y={node.y + (treeGraph.nodeRadius ?? 34) + 34}
                               textAnchor="middle"
                               fill="#64748b"
-                              fontSize="12"
+                              fontSize="11"
                             >
-                              {node.position ? node.position : "ROOT"}
+                              {node.isPlaceholder ? "" : node.depth === 0 ? "ROOT" : node.position ?? ""}
                             </text>
                           </g>
                         ))}
@@ -1312,6 +1383,117 @@ export default function Home() {
                     </div>
                   )}
                 </article>
+
+                {treeNodeDetailOpen && (
+                  <div
+                    className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/50 p-4"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="tree-node-detail-title"
+                    onClick={(e) => {
+                      if (e.target === e.currentTarget) {
+                        setTreeNodeDetailOpen(false);
+                        setTreeNodeDetail(null);
+                        setTreeNodeDetailError(null);
+                      }
+                    }}
+                  >
+                    <div
+                      className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-emerald-200/80 bg-white shadow-2xl"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-start justify-between gap-3 border-b border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50/40 px-5 py-4">
+                        <h3 id="tree-node-detail-title" className="text-lg font-semibold text-slate-900">
+                          Member details
+                        </h3>
+                        <button
+                          type="button"
+                          className="rounded-lg px-2 py-1 text-sm font-semibold text-slate-600 hover:bg-white/80"
+                          onClick={() => {
+                            setTreeNodeDetailOpen(false);
+                            setTreeNodeDetail(null);
+                            setTreeNodeDetailError(null);
+                          }}
+                        >
+                          Close
+                        </button>
+                      </div>
+                      <div className="px-5 py-4">
+                        {treeNodeDetailLoading && (
+                          <p className="text-sm text-slate-600">Loading leg statistics…</p>
+                        )}
+                        {treeNodeDetailError && (
+                          <p className="text-sm text-rose-600">{treeNodeDetailError}</p>
+                        )}
+                        {treeNodeDetail && !treeNodeDetailLoading && (
+                          <>
+                            <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 px-4 py-3">
+                              <p className="text-base font-semibold text-slate-900">{treeNodeDetail.name}</p>
+                              <p className="text-sm text-ayur-green">{treeNodeDetail.rankLabel}</p>
+                              <p className="mt-1 text-sm">
+                                <span className="text-slate-500">Code </span>
+                                <span className="font-mono font-semibold text-sky-700">{treeNodeDetail.displayUsername}</span>
+                              </p>
+                              {treeNodeDetail.packageName && (
+                                <p className="text-xs text-slate-600">Plan: {treeNodeDetail.packageName}</p>
+                              )}
+                            </div>
+                            <p className="mt-3 text-sm text-slate-700">
+                              <span className="text-slate-500">Referred by </span>
+                              <span className="font-medium">{treeNodeDetail.referredByName ?? "—"}</span>
+                            </p>
+                            <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="border-b border-slate-200 bg-slate-50 text-left">
+                                    <th className="px-3 py-2 font-semibold text-slate-700"> </th>
+                                    <th className="px-3 py-2 font-semibold text-emerald-800">Left</th>
+                                    <th className="px-3 py-2 font-semibold text-amber-800">Right</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                  <tr>
+                                    <td className="px-3 py-2 text-slate-600">Current BV</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.left.currentBv)}</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.right.currentBv)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-3 py-2 text-slate-600">Current PV</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.left.currentPv)}</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.right.currentPv)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-3 py-2 text-slate-600">Total BV</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.left.totalBv)}</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.right.totalBv)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-3 py-2 text-slate-600">Total PV</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.left.totalPv)}</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{money(treeNodeDetail.right.totalPv)}</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-3 py-2 text-slate-600">Free members</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{treeNodeDetail.left.freeMembers}</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{treeNodeDetail.right.freeMembers}</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-3 py-2 text-slate-600">Paid members</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{treeNodeDetail.left.paidMembers}</td>
+                                    <td className="px-3 py-2 font-medium tabular-nums">{treeNodeDetail.right.paidMembers}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                            <p className="mt-3 text-xs text-slate-500">
+                              Leg BV is stored on the member; leg PV and member counts aggregate that leg&apos;s downline.
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </section>
             )}
 
