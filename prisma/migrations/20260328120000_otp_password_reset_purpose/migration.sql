@@ -1,0 +1,2 @@
+-- OtpPurpose enum value PASSWORD_RESET added in schema.
+-- SQLite stores Prisma enums as TEXT; existing rows are unaffected; no DDL required.

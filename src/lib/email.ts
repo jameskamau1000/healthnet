@@ -3,7 +3,7 @@ import { Resend } from "resend";
 type OtpEmailInput = {
   to: string;
   otpCode: string;
-  purpose: "LOGIN" | "REGISTER" | "WITHDRAWAL";
+  purpose: "LOGIN" | "REGISTER" | "WITHDRAWAL" | "PASSWORD_RESET";
   ttlMinutes: number;
 };
 
@@ -26,6 +26,7 @@ function getEmailFromAddress() {
 function purposeLabel(purpose: OtpEmailInput["purpose"]): string {
   if (purpose === "LOGIN") return "login verification";
   if (purpose === "REGISTER") return "registration verification";
+  if (purpose === "PASSWORD_RESET") return "password reset";
   return "withdrawal verification";
 }
 

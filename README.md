@@ -49,6 +49,15 @@ On the server, `/var/www/healthnet/.env` **must** include valid:
 
 Then restart the app (`pm2 restart healthnet --update-env`) so Node picks up the variables.
 
+### Password reset (email OTP)
+
+- On `/login`, use **Forgot password?** (or open `/login?tab=forgot`).
+- Enter your account email → API sends a **PASSWORD_RESET** OTP via Resend (same as login/register).
+- Enter the code and a new password (min. 6 characters) → all sessions for that user are cleared; sign in again with the new password.
+- Endpoints: `POST /api/auth/forgot-password` `{ "email" }`, `POST /api/auth/reset-password` `{ "challengeId", "otpCode", "newPassword" }`.
+
+After pulling code, run `npx prisma migrate deploy` (or `db push`) so the `OtpPurpose` enum includes `PASSWORD_RESET`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

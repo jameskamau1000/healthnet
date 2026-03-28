@@ -17,7 +17,7 @@ type MeResponse = {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [regName, setRegName] = useState("");
@@ -35,10 +35,17 @@ export default function LoginPage() {
   const [loginOtpCode, setLoginOtpCode] = useState("");
   const [registerChallengeId, setRegisterChallengeId] = useState<string | null>(null);
   const [registerOtpCode, setRegisterOtpCode] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [resetChallengeId, setResetChallengeId] = useState<string | null>(null);
+  const [resetOtpCode, setResetOtpCode] = useState("");
+  const [resetNewPassword, setResetNewPassword] = useState("");
+  const [resetConfirmPassword, setResetConfirmPassword] = useState("");
 
   useEffect(() => {
     const tab = new URLSearchParams(window.location.search).get("tab");
-    setMode(tab === "register" ? "register" : "login");
+    if (tab === "register") setMode("register");
+    else if (tab === "forgot") setMode("forgot");
+    else setMode("login");
   }, []);
 
   useEffect(() => {
@@ -151,6 +158,91 @@ export default function LoginPage() {
     }
   }
 
+  function goLogin() {
+    setMode("login");
+    setError(null);
+    setNotice(null);
+    setResetChallengeId(null);
+    setResetOtpCode("");
+    setResetNewPassword("");
+    setResetConfirmPassword("");
+    router.replace("/login");
+  }
+
+  async function onForgotRequest(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail.trim() }),
+      });
+      const data = (await response.json()) as {
+        error?: string;
+        message?: string;
+        ok?: boolean;
+        challengeId?: string;
+      };
+      if (!response.ok) {
+        setError(data.error ?? "Could not send reset email");
+        return;
+      }
+      setNotice(data.message ?? "Check your email for a reset code.");
+      if (data.challengeId) {
+        setResetChallengeId(data.challengeId);
+      }
+    } catch {
+      setError("Unable to send reset email right now");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onForgotVerifyRequest(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (resetNewPassword !== resetConfirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          challengeId: resetChallengeId,
+          otpCode: resetOtpCode.trim(),
+          newPassword: resetNewPassword,
+        }),
+      });
+      const data = (await response.json()) as { error?: string; message?: string };
+      if (!response.ok) {
+        setError(data.error ?? "Reset failed");
+        return;
+      }
+      const savedEmail = forgotEmail.trim();
+      setLoginEmail(savedEmail);
+      setLoginPassword("");
+      setForgotEmail("");
+      setResetChallengeId(null);
+      setResetOtpCode("");
+      setResetNewPassword("");
+      setResetConfirmPassword("");
+      setMode("login");
+      setError(null);
+      setNotice(data.message ?? "Password updated. Sign in with your new password.");
+      router.replace("/login");
+    } catch {
+      setError("Unable to reset password right now");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-emerald-50/60 via-[#fafcf9] to-amber-50/40 text-slate-900">
       <div
@@ -182,47 +274,76 @@ export default function LoginPage() {
             </div>
             <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-gradient-to-r from-ayur-green via-ayur-gold to-ayur-maroon" />
             <h1 className="mt-4 text-center text-2xl font-bold text-slate-900">
-              {mode === "login" ? "Sign in" : "Create account"}
+              {mode === "login"
+                ? "Sign in"
+                : mode === "register"
+                  ? "Create account"
+                  : resetChallengeId
+                    ? "Set new password"
+                    : "Reset password"}
             </h1>
             <p className="mt-1 text-center text-sm text-slate-600">
               {mode === "login"
                 ? "Access your member or admin dashboard."
-                : "Register your member account to join the platform."}
+                : mode === "register"
+                  ? "Register your member account to join the platform."
+                  : resetChallengeId
+                    ? "Enter the code from your email and choose a new password (min. 6 characters)."
+                    : "We will email you a one-time code to confirm it is you."}
             </p>
-            <div className="mt-5 grid grid-cols-2 gap-1 rounded-xl border border-emerald-200/60 bg-white/80 p-1 shadow-inner">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("login");
-                  setError(null);
-                  setNotice(null);
-                  router.replace("/login");
-                }}
-                className={`rounded-lg px-3 py-2.5 text-sm font-bold transition ${
-                  mode === "login"
-                    ? "bg-gradient-to-r from-ayur-green to-emerald-700 text-white shadow-md"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("register");
-                  setError(null);
-                  setNotice(null);
-                  router.replace("/login?tab=register");
-                }}
-                className={`rounded-lg px-3 py-2.5 text-sm font-bold transition ${
-                  mode === "register"
-                    ? "bg-gradient-to-r from-ayur-maroon to-rose-900 text-white shadow-md"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Register
-              </button>
-            </div>
+            {mode !== "forgot" ? (
+              <div className="mt-5 grid grid-cols-2 gap-1 rounded-xl border border-emerald-200/60 bg-white/80 p-1 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("login");
+                    setError(null);
+                    setNotice(null);
+                    setResetChallengeId(null);
+                    setForgotEmail("");
+                    setResetOtpCode("");
+                    setResetNewPassword("");
+                    setResetConfirmPassword("");
+                    router.replace("/login");
+                  }}
+                  className={`rounded-lg px-3 py-2.5 text-sm font-bold transition ${
+                    mode === "login"
+                      ? "bg-gradient-to-r from-ayur-green to-emerald-700 text-white shadow-md"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("register");
+                    setError(null);
+                    setNotice(null);
+                    router.replace("/login?tab=register");
+                  }}
+                  className={`rounded-lg px-3 py-2.5 text-sm font-bold transition ${
+                    mode === "register"
+                      ? "bg-gradient-to-r from-ayur-maroon to-rose-900 text-white shadow-md"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Register
+                </button>
+              </div>
+            ) : (
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    goLogin();
+                  }}
+                  className="w-full rounded-lg border border-emerald-200/80 bg-white/80 px-3 py-2.5 text-sm font-semibold text-slate-700 shadow-inner hover:bg-white"
+                >
+                  ← Back to sign in
+                </button>
+              </div>
+            )}
 
             {hint && (
               <p className="mt-4 rounded-xl border border-ayur-gold/40 bg-amber-50/80 p-3 text-xs text-ayur-maroon">
@@ -238,7 +359,70 @@ export default function LoginPage() {
               </p>
             )}
 
-            {mode === "login" ? (
+            {mode === "forgot" ? (
+              !resetChallengeId ? (
+                <form className="mt-5 space-y-3" onSubmit={onForgotRequest}>
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">Account email</span>
+                    <input
+                      type="email"
+                      autoComplete="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      className={fieldClass}
+                      required
+                    />
+                  </label>
+                  <button type="submit" disabled={loading} className={primaryBtnClass}>
+                    {loading ? "Sending..." : "Send reset code"}
+                  </button>
+                </form>
+              ) : (
+                <form className="mt-5 space-y-3" onSubmit={onForgotVerifyRequest}>
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">One-time code (email)</span>
+                    <input
+                      value={resetOtpCode}
+                      onChange={(e) => setResetOtpCode(e.target.value)}
+                      className={fieldClass}
+                      placeholder="6-digit code"
+                      minLength={6}
+                      maxLength={6}
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      required
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">New password</span>
+                    <input
+                      type="password"
+                      autoComplete="new-password"
+                      value={resetNewPassword}
+                      onChange={(e) => setResetNewPassword(e.target.value)}
+                      className={fieldClass}
+                      minLength={6}
+                      required
+                    />
+                  </label>
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">Confirm new password</span>
+                    <input
+                      type="password"
+                      autoComplete="new-password"
+                      value={resetConfirmPassword}
+                      onChange={(e) => setResetConfirmPassword(e.target.value)}
+                      className={fieldClass}
+                      minLength={6}
+                      required
+                    />
+                  </label>
+                  <button type="submit" disabled={loading} className={primaryBtnClass}>
+                    {loading ? "Updating..." : "Update password"}
+                  </button>
+                </form>
+              )
+            ) : mode === "login" ? (
               <form className="mt-5 space-y-3" onSubmit={onLogin}>
                 <label className="block text-sm">
                   <span className="mb-1 block font-medium text-slate-700">Email</span>
@@ -285,6 +469,24 @@ export default function LoginPage() {
                 <button type="submit" disabled={loading} className={primaryBtnClass}>
                   {loading ? "Signing in..." : loginChallengeId ? "Verify OTP and sign in" : "Sign in"}
                 </button>
+                {!loginChallengeId && (
+                  <p className="text-center text-sm">
+                    <button
+                      type="button"
+                      className="font-semibold text-ayur-green hover:underline"
+                      onClick={() => {
+                        setError(null);
+                        setNotice(null);
+                        setForgotEmail(loginEmail);
+                        setResetChallengeId(null);
+                        setMode("forgot");
+                        router.replace("/login?tab=forgot");
+                      }}
+                    >
+                      Forgot password?
+                    </button>
+                  </p>
+                )}
               </form>
             ) : (
               <form className="mt-5 space-y-3" onSubmit={onRegister}>

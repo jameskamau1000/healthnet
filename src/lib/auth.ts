@@ -1,4 +1,4 @@
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import { cookies } from "next/headers";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
@@ -93,4 +93,18 @@ export async function requireAdmin() {
   const user = await getSessionUser();
   if (!user || user.role !== "ADMIN") return null;
   return user;
+}
+
+const BCRYPT_ROUNDS = 10;
+
+/** After a password change, end all sessions so other devices must sign in again. */
+export async function setUserPasswordAndInvalidateSessions(userId: string, plainPassword: string): Promise<void> {
+  const passwordHash = await hash(plainPassword, BCRYPT_ROUNDS);
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    }),
+    prisma.session.deleteMany({ where: { userId } }),
+  ]);
 }
