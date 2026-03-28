@@ -1,23 +1,8 @@
 import { NextResponse } from "next/server";
 import { ensureBootstrapData } from "@/lib/bootstrap";
 import { getSessionUser } from "@/lib/auth";
+import { viewerIsBinaryAncestorOf } from "@/lib/binary-tree-guard";
 import { prisma } from "@/lib/prisma";
-
-/** Walk up binary parents until null; true if `viewerRootMemberId` appears on the path from target (inclusive). */
-async function memberIsInViewerTree(viewerRootMemberId: string, targetMemberId: string): Promise<boolean> {
-  let cur: string | null = targetMemberId;
-  const guard = new Set<string>();
-  while (cur && !guard.has(cur)) {
-    guard.add(cur);
-    if (cur === viewerRootMemberId) return true;
-    const next: { binaryParentId: string | null } | null = await prisma.member.findUnique({
-      where: { id: cur },
-      select: { binaryParentId: true },
-    });
-    cur = next?.binaryParentId ?? null;
-  }
-  return false;
-}
 
 /** All member ids in the binary subtree rooted at `rootId` (including root). */
 async function collectSubtreeMemberIds(rootId: string): Promise<string[]> {
@@ -98,7 +83,7 @@ export async function GET(request: Request) {
   }
 
   const viewerRootId = viewer.memberProfile.id;
-  const allowed = await memberIsInViewerTree(viewerRootId, memberId);
+  const allowed = await viewerIsBinaryAncestorOf(viewerRootId, memberId);
   if (!allowed) {
     return NextResponse.json({ error: "Not in your tree" }, { status: 403 });
   }

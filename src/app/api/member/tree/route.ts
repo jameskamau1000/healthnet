@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import { ensureBootstrapData } from "@/lib/bootstrap";
 import { getSessionUser } from "@/lib/auth";
+import { viewerIsBinaryAncestorOf } from "@/lib/binary-tree-guard";
 import { prisma } from "@/lib/prisma";
+import { getPublicSiteUrl } from "@/lib/public-url";
 
-export async function GET() {
+export async function GET(request: Request) {
   await ensureBootstrapData();
   const user = await getSessionUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const root = await prisma.user.findUnique({
+  const viewer = await prisma.user.findUnique({
     where: { id: user.id },
     include: {
       memberProfile: {
@@ -19,8 +21,31 @@ export async function GET() {
     },
   });
 
-  if (!root || !root.memberProfile) {
+  if (!viewer || !viewer.memberProfile) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  const viewerMemberId = viewer.memberProfile.id;
+  const { searchParams } = new URL(request.url);
+  const rootMemberIdParam = searchParams.get("rootMemberId")?.trim() ?? null;
+
+  let rootMember = viewer.memberProfile;
+  let rootUser = viewer;
+
+  if (rootMemberIdParam) {
+    const allowed = await viewerIsBinaryAncestorOf(viewerMemberId, rootMemberIdParam);
+    if (!allowed) {
+      return NextResponse.json({ error: "Not in your tree" }, { status: 403 });
+    }
+    const target = await prisma.member.findUnique({
+      where: { id: rootMemberIdParam },
+      include: { user: true, package: true },
+    });
+    if (!target?.user || !target.package) {
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    }
+    rootMember = target as typeof rootMember;
+    rootUser = target.user as typeof rootUser;
   }
 
   const maxDepth = 4;
@@ -40,23 +65,23 @@ export async function GET() {
     createdAt: string;
   }> = [
     {
-      id: root.memberProfile.id,
-      memberId: root.memberProfile.id,
+      id: rootMember.id,
+      memberId: rootMember.id,
       parentMemberId: null,
       position: null,
       depth: 0,
-      name: root.name,
-      email: root.email,
-      referralCode: root.referralCode,
-      packageName: root.memberProfile.package.name,
-      rank: root.memberProfile.rank,
-      councilStatus: root.memberProfile.councilStatus,
+      name: rootUser.name,
+      email: rootUser.email,
+      referralCode: rootUser.referralCode,
+      packageName: rootMember.package.name,
+      rank: rootMember.rank,
+      councilStatus: rootMember.councilStatus,
       isPlaceholder: false,
-      createdAt: root.createdAt.toISOString(),
+      createdAt: rootUser.createdAt.toISOString(),
     },
   ];
 
-  let frontier: string[] = [root.memberProfile.id];
+  let frontier: string[] = [rootMember.id];
   let depth = 1;
 
   while (frontier.length > 0 && depth <= maxDepth) {
@@ -129,7 +154,7 @@ export async function GET() {
   }
 
   const directReferrals = await prisma.user.findMany({
-    where: { referredById: root.id },
+    where: { referredById: rootUser.id },
     orderBy: { createdAt: "asc" },
     include: {
       memberProfile: {
@@ -139,10 +164,17 @@ export async function GET() {
   });
 
   const totalDownline = nodes.filter((n) => !n.isPlaceholder && n.depth > 0).length;
+  const base = getPublicSiteUrl(request);
+  const leftLink = `${base}/?ref=${encodeURIComponent(rootUser.referralCode)}&position=left`;
+  const rightLink = `${base}/?ref=${encodeURIComponent(rootUser.referralCode)}&position=right`;
 
   return NextResponse.json({
-    rootUserId: root.id,
-    referralCode: root.referralCode,
+    rootUserId: rootUser.id,
+    viewRootMemberId: rootMember.id,
+    viewingOwnTree: rootMember.id === viewerMemberId,
+    viewerMemberId,
+    referralCode: rootUser.referralCode,
+    referralLinks: { leftLink, rightLink },
     directReferralsCount: directReferrals.length,
     totalDownline,
     nodes,

@@ -84,6 +84,35 @@ type DirectReferralRow = {
   joinedAt: string;
 };
 
+type TreeDrillCrumb = { memberId: string; label: string };
+
+/** Breadcrumb path from the viewer's member root down to the clicked node (for API rootMemberId = last crumb). */
+function buildDrillCrumbsFromClick(
+  clicked: ReferralTreeNode,
+  viewerMemberId: string | undefined,
+  allNodes: ReferralTreeNode[],
+): TreeDrillCrumb[] {
+  if (!clicked.memberId || !viewerMemberId) return [];
+  if (clicked.memberId === viewerMemberId) return [];
+  const byMemberId = new Map<string, ReferralTreeNode>();
+  for (const n of allNodes) {
+    if (n.memberId) byMemberId.set(n.memberId, n);
+  }
+  const crumbs: TreeDrillCrumb[] = [];
+  let cur: ReferralTreeNode | undefined = clicked;
+  while (cur?.memberId && cur.memberId !== viewerMemberId) {
+    crumbs.push({
+      memberId: cur.memberId,
+      label: cur.referralCode || cur.name,
+    });
+    const pid = cur.parentMemberId;
+    if (!pid) break;
+    cur = byMemberId.get(pid);
+  }
+  crumbs.reverse();
+  return crumbs;
+}
+
 const tabOrder: TabId[] = [
   "overview",
   "tree",
@@ -198,6 +227,10 @@ export default function Home() {
   const [treeNodeDetail, setTreeNodeDetail] = useState<TreeNodeDetailResponse | null>(null);
   const [treeNodeDetailLoading, setTreeNodeDetailLoading] = useState(false);
   const [treeNodeDetailError, setTreeNodeDetailError] = useState<string | null>(null);
+  const [treeDrillStack, setTreeDrillStack] = useState<TreeDrillCrumb[]>([]);
+  const [treeViewingOwnTree, setTreeViewingOwnTree] = useState(true);
+  const treeDrillClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const treeDrillLastClickRef = useRef<{ memberId: string; t: number } | null>(null);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
   const [withdrawPhoneNumber, setWithdrawPhoneNumber] = useState("");
   const [depositAmount, setDepositAmount] = useState(0);
@@ -440,47 +473,55 @@ export default function Home() {
     [],
   );
 
+  const treeDrillKey = treeDrillStack.map((c) => c.memberId).join(",");
+
+  useEffect(() => {
+    return () => {
+      if (treeDrillClickTimerRef.current) clearTimeout(treeDrillClickTimerRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     const needsTree = activeTab === "tree" || activeTab === "myReferrer";
-    if (!user || !needsTree || treeLoading || treeNodes.length > 0) return;
+    if (!user || !needsTree) return;
+    let cancelled = false;
     const run = async () => {
       setTreeLoading(true);
+      setTreeNodes([]);
       try {
-        const response = await fetch("/api/member/tree");
+        const last = treeDrillStack[treeDrillStack.length - 1];
+        const url = last
+          ? `/api/member/tree?rootMemberId=${encodeURIComponent(last.memberId)}`
+          : "/api/member/tree";
+        const response = await fetch(url);
         const data = await response.json();
         if (!response.ok) {
-          setError(data.error ?? "Failed to load referral tree");
+          if (!cancelled) setError(data.error ?? "Failed to load referral tree");
           return;
         }
+        if (cancelled) return;
         setTreeNodes(data.nodes ?? []);
         setTreeDirectReferrals(data.directReferralsCount ?? 0);
         setTreeTotalDownline(data.totalDownline ?? 0);
         setTreeDirectRows(data.directReferrals ?? []);
+        setTreeViewingOwnTree(data.viewingOwnTree !== false);
+        if (data.referralLinks?.leftLink && data.referralLinks?.rightLink) {
+          setReferralLinks({
+            leftLink: data.referralLinks.leftLink,
+            rightLink: data.referralLinks.rightLink,
+          });
+        }
       } catch {
-        setError("Failed to load referral tree");
+        if (!cancelled) setError("Failed to load referral tree");
       } finally {
-        setTreeLoading(false);
+        if (!cancelled) setTreeLoading(false);
       }
     };
-    run();
-  }, [activeTab, treeLoading, treeNodes.length, user]);
-  useEffect(() => {
-    if (!user || activeTab !== "tree" || referralLinks) return;
-    const run = async () => {
-      try {
-        const response = await fetch("/api/member/referral-links");
-        const data = await response.json();
-        if (!response.ok) return;
-        setReferralLinks({
-          leftLink: data.leftLink,
-          rightLink: data.rightLink,
-        });
-      } catch {
-        // non-blocking helper section
-      }
+    void run();
+    return () => {
+      cancelled = true;
     };
-    run();
-  }, [activeTab, referralLinks, user]);
+  }, [user, activeTab, treeDrillKey]);
   const referrerCommissionRows = useMemo(() => {
     const sorted = [...transactions]
       .filter((tx) => tx.type === "REFERRAL")
@@ -621,6 +662,28 @@ export default function Home() {
     }
   }
 
+  function handleTreeNodeActivate(node: ReferralTreeNode) {
+    if (node.isPlaceholder || !node.memberId) return;
+    const viewerId = currentMember?.id;
+    if (!viewerId) return;
+    const now = Date.now();
+    const prev = treeDrillLastClickRef.current;
+    if (prev && prev.memberId === node.memberId && now - prev.t < 450) {
+      if (treeDrillClickTimerRef.current) clearTimeout(treeDrillClickTimerRef.current);
+      treeDrillClickTimerRef.current = null;
+      treeDrillLastClickRef.current = null;
+      void openTreeNodeDetails(node);
+      return;
+    }
+    treeDrillLastClickRef.current = { memberId: node.memberId, t: now };
+    treeDrillClickTimerRef.current = setTimeout(() => {
+      treeDrillClickTimerRef.current = null;
+      treeDrillLastClickRef.current = null;
+      const crumbs = buildDrillCrumbsFromClick(node, viewerId, treeNodes);
+      setTreeDrillStack(crumbs);
+    }, 450);
+  }
+
   async function loadDashboard() {
     const response = await fetch("/api/dashboard");
     const data = await response.json();
@@ -655,6 +718,8 @@ export default function Home() {
     setTreeTotalDownline(0);
     setTreeDirectRows([]);
     setReferralLinks(null);
+    setTreeDrillStack([]);
+    setTreeViewingOwnTree(true);
 
     if (typed.user.role === "MEMBER") {
       const res = await fetch("/api/member/withdrawals");
@@ -777,6 +842,8 @@ export default function Home() {
     setTreeTotalDownline(0);
     setTreeDirectRows([]);
     setReferralLinks(null);
+    setTreeDrillStack([]);
+    setTreeViewingOwnTree(true);
     setNotice("You have been logged out.");
   }
 
@@ -1309,7 +1376,37 @@ export default function Home() {
                   </div>
                 </article>
                 <article className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
-                  <h2 className="mb-4 text-lg font-semibold">Binary Tree</h2>
+                  <h2 className="mb-2 text-lg font-semibold">Binary Tree</h2>
+                  <p className="mb-3 text-xs text-slate-500">
+                    Click a member to open their downline (like Everhealthy). Double-click for leg BV/PV details.
+                  </p>
+                  <div className="mb-4 flex flex-wrap items-center gap-1 text-sm text-slate-600">
+                    <button
+                      type="button"
+                      className="font-semibold text-ayur-green hover:underline"
+                      onClick={() => setTreeDrillStack([])}
+                    >
+                      My tree
+                    </button>
+                    {treeDrillStack.map((c, i) => (
+                      <span key={c.memberId} className="flex items-center gap-1">
+                        <span className="text-slate-400" aria-hidden>
+                          /
+                        </span>
+                        <button
+                          type="button"
+                          className={
+                            i === treeDrillStack.length - 1
+                              ? "font-semibold text-slate-900"
+                              : "text-ayur-green hover:underline"
+                          }
+                          onClick={() => setTreeDrillStack(treeDrillStack.slice(0, i + 1))}
+                        >
+                          {c.label}
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                   {treeLoading && <p className="text-sm text-slate-600">Loading tree...</p>}
                   {!treeLoading && treeNodes.length === 0 && (
                     <p className="text-sm text-slate-600">No referral tree data found yet.</p>
@@ -1337,11 +1434,11 @@ export default function Home() {
                             className={node.isPlaceholder ? "" : "cursor-pointer"}
                             role={node.isPlaceholder ? undefined : "button"}
                             tabIndex={node.isPlaceholder ? undefined : 0}
-                            onClick={() => void openTreeNodeDetails(node)}
+                            onClick={() => handleTreeNodeActivate(node)}
                             onKeyDown={(e) => {
                               if (!node.isPlaceholder && (e.key === "Enter" || e.key === " ")) {
                                 e.preventDefault();
-                                void openTreeNodeDetails(node);
+                                handleTreeNodeActivate(node);
                               }
                             }}
                           >
@@ -1366,7 +1463,11 @@ export default function Home() {
                               fontSize="13"
                               fontWeight="600"
                             >
-                              {node.isPlaceholder ? "No User" : node.depth === 0 ? "You" : node.referralCode || node.name.split(" ")[0] || "Member"}
+                              {node.isPlaceholder
+                                ? "No User"
+                                : node.depth === 0 && treeViewingOwnTree
+                                  ? "You"
+                                  : node.referralCode || node.name.split(" ")[0] || "Member"}
                             </text>
                             <text
                               x={node.x}
