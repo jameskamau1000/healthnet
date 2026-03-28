@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { PublicMarketing } from "@/components/public-marketing";
+import { buildRegisterLoginHref } from "@/lib/referral-query";
 import {
   AuditLogRecord,
   calculatePayout,
@@ -300,6 +301,11 @@ export default function Home() {
   );
   const selectedSimPackage = packageMap.get(simPackageId) ?? packages[0];
   const simRatios = selectedSimPackage.matchingRatios;
+
+  const registerHref = useMemo(
+    () => buildRegisterLoginHref({ ref: regReferralCode, position: regPosition }),
+    [regReferralCode, regPosition],
+  );
 
   useEffect(() => {
     const run = async () => {
@@ -1079,7 +1085,7 @@ export default function Home() {
                   Get Started
                 </a>
                 <a
-                  href="/login?tab=register"
+                  href={registerHref}
                   className="rounded-full border border-ayur-gold bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90"
                 >
                   Register
@@ -1116,6 +1122,7 @@ export default function Home() {
             heroSlides={heroSlides}
             landingProducts={landingProducts}
             settings={settings}
+            registerHref={registerHref}
           />
         )}
 

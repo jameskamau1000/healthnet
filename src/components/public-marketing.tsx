@@ -43,6 +43,8 @@ export type PublicMarketingProps = {
   heroSlides: HeroSlide[];
   landingProducts: LandingProduct[];
   settings: CompensationSettings | null;
+  /** Preserves `ref` + `position` when linking from a referral URL. */
+  registerHref?: string;
 };
 
 export function PublicMarketing({
@@ -51,6 +53,7 @@ export function PublicMarketing({
   heroSlides,
   landingProducts,
   settings,
+  registerHref = "/login?tab=register",
 }: PublicMarketingProps) {
   const refPct = settings?.referralPercent ?? 20;
   const binPct = settings?.binaryPercent ?? 15;
@@ -107,7 +110,7 @@ export function PublicMarketing({
                   Discover products
                 </a>
                 <a
-                  href="/login?tab=register"
+                  href={registerHref}
                   className="inline-flex items-center rounded-xl bg-gradient-to-r from-ayur-gold to-amber-500 px-6 py-3 text-sm font-bold text-ayur-maroon shadow-lg shadow-amber-900/25 transition hover:brightness-105"
                 >
                   Join today
@@ -584,7 +587,7 @@ export function PublicMarketing({
                 </a>
               </li>
               <li>
-                <a href="/login?tab=register" className="hover:text-white">
+                <a href={registerHref} className="hover:text-white">
                   Register
                 </a>
               </li>

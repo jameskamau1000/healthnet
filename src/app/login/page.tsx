@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { buildRegisterLoginHref } from "@/lib/referral-query";
 
 const fieldClass =
   "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-900 shadow-inner shadow-slate-900/5 focus:border-ayur-green focus:outline-none focus:ring-2 focus:ring-ayur-green/25";
@@ -41,11 +42,21 @@ export default function LoginPage() {
   const [resetNewPassword, setResetNewPassword] = useState("");
   const [resetConfirmPassword, setResetConfirmPassword] = useState("");
 
+  const registerHref = useMemo(
+    () => buildRegisterLoginHref({ ref: regReferralCode, position: regPosition }),
+    [regReferralCode, regPosition],
+  );
+
   useEffect(() => {
-    const tab = new URLSearchParams(window.location.search).get("tab");
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
     if (tab === "register") setMode("register");
     else if (tab === "forgot") setMode("forgot");
     else setMode("login");
+    const ref = params.get("ref");
+    const position = params.get("position");
+    if (ref?.trim()) setRegReferralCode(ref.trim());
+    if (position === "left" || position === "right") setRegPosition(position);
   }, []);
 
   useEffect(() => {
@@ -320,7 +331,7 @@ export default function LoginPage() {
                     setMode("register");
                     setError(null);
                     setNotice(null);
-                    router.replace("/login?tab=register");
+                    router.replace(registerHref);
                   }}
                   className={`rounded-lg px-3 py-2.5 text-sm font-bold transition ${
                     mode === "register"
