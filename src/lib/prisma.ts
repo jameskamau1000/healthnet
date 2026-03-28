@@ -1,4 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+import { enforceDatabaseRoleForProcess } from "@/lib/database-env";
+
+enforceDatabaseRoleForProcess();
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 

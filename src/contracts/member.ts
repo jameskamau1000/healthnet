@@ -2,7 +2,10 @@ import { z } from "zod";
 
 export const registerMemberSchema = z.object({
   name: z.string().min(2),
-  email: z.string().email(),
+  email: z
+    .string()
+    .email()
+    .transform((e) => e.trim().toLowerCase()),
   password: z.string().min(6),
   phoneNumber: z.string().min(10).max(20).optional(),
   packageId: z.string().min(1).default("starter"),

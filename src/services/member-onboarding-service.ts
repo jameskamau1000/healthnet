@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { findBinaryPlacement } from "@/lib/tree";
 import { CreateMemberInput, RegisterMemberInput } from "@/contracts/member";
+import { normalizeUserEmail } from "@/lib/user-email";
 
 function makeReferralCode(name: string): string {
   const base = name.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8) || "MEMBER";
@@ -16,7 +17,8 @@ function makeReferralCode(name: string): string {
 }
 
 export async function registerMemberAccount(input: RegisterMemberInput) {
-  const { name, email, password, phoneNumber, packageId, referralCode, position } = input;
+  const { name, password, phoneNumber, packageId, referralCode, position } = input;
+  const email = normalizeUserEmail(input.email);
 
   const [existing, tier] = await Promise.all([
     prisma.user.findUnique({ where: { email } }),

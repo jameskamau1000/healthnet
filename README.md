@@ -20,6 +20,35 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Local vs production database (strict)
+
+SQLite files are **never** committed (see `.gitignore`). Application code and migrations **must not** ship database files to the server.
+
+| Environment | `DATABASE_URL` | `HEALTHNET_DATABASE_ROLE` |
+|-------------|----------------|---------------------------|
+| Laptop / CI | `file:./prisma/local.db` | omit or `local` |
+| Production host | `file:./data/live.db` | **`live`** (required) |
+
+- **Local:** copy `.env.example` → `.env`, run `npm run db:migrate:dev` to create/update `prisma/local.db`.
+- **Production:** create the data directory once, point `.env` at the live file, and **only** apply schema with migrations (never copy a DB from your laptop):
+
+```bash
+mkdir -p /var/www/healthnet/data
+# One-time: move existing DB into the live location (adjust if you already use this path)
+# mv /var/www/healthnet/dev.db /var/www/healthnet/data/live.db
+```
+
+In **`/var/www/healthnet/.env`** set:
+
+```bash
+DATABASE_URL="file:./data/live.db"
+HEALTHNET_DATABASE_ROLE=live
+```
+
+After each code deploy: `cd /var/www/healthnet && npx prisma migrate deploy` (then `npm ci && npm run build` and restart PM2). With `HEALTHNET_DATABASE_ROLE=live`, the app **refuses** to start if `DATABASE_URL` points at `prisma/local.db`, `./dev.db`, or `prisma/dev.db`, so a bad archive or `.env` paste cannot silently swap in a dev database.
+
+**Deploy code without databases:** use `git pull` on the server, or `./scripts/deploy-code.sh user@host:/var/www/healthnet` (tar-based; excludes `*.db`, `.env`, `node_modules`, `.next`).
+
 ## OTP + Email Setup (Resend)
 
 The app supports email OTP for registration, login, and withdrawal confirmation.

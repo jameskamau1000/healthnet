@@ -7,7 +7,10 @@ import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
 import { OtpPurpose } from "@prisma/client";
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z
+    .string()
+    .email()
+    .transform((e) => e.trim().toLowerCase()),
   password: z.string().min(6),
 });
 const verifySchema = z.object({

@@ -1041,7 +1041,7 @@ export default function Home() {
         />
         <div className="relative mx-auto max-w-6xl px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Image
                 src="/ayur-logo.png"
                 alt="Ayur Health International"
@@ -1050,6 +1050,12 @@ export default function Home() {
                 className="h-10 w-auto max-w-[min(100%,220px)] object-contain object-left sm:h-11 sm:max-w-[260px]"
                 priority
               />
+              <div className="border-l border-slate-200 pl-3 sm:pl-4">
+                <p className="max-w-[14rem] text-xs font-semibold leading-snug tracking-tight text-ayur-forest sm:max-w-none sm:text-sm md:text-base">
+                  Ayur Health{" "}
+                  <span className="font-semibold text-ayur-green">International</span>
+                </p>
+              </div>
               <div className="hidden border-l border-slate-200 pl-4 text-sm text-slate-600 md:block">
                 Referral bonus {settings.referralPercent}% | Binary bonus {settings.binaryPercent}%
               </div>

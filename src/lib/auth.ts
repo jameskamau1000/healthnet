@@ -2,6 +2,7 @@ import { compare, hash } from "bcryptjs";
 import { cookies } from "next/headers";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
+import { normalizeUserEmail } from "@/lib/user-email";
 
 const COOKIE_NAME = "healthnet_session";
 const SESSION_DAYS = 7;
@@ -14,7 +15,7 @@ export type SafeUser = {
 };
 
 export async function verifyEmailPassword(email: string, password: string): Promise<SafeUser | null> {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email: normalizeUserEmail(email) } });
   if (!user) return null;
 
   const validPassword = await compare(password, user.passwordHash);

@@ -9,6 +9,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"] ?? "file:./dev.db",
+    /** Default is local-only; never use for production (set DATABASE_URL + HEALTHNET_DATABASE_ROLE on the server). */
+    url: process.env["DATABASE_URL"] ?? "file:./prisma/local.db",
   },
 });
