@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getMemberAvailableBalance } from "@/lib/wallet";
 import { createAuditLog } from "@/lib/audit";
 import { notifyAdmins } from "@/lib/notifications";
+import { otpEmailErrorResponse } from "@/lib/email";
 import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
 
 const createSchema = z.object({
@@ -119,8 +120,9 @@ export async function POST(request: Request) {
         memberId: member.id,
         payload: parsed.data,
       });
-    } catch {
-      return NextResponse.json({ error: "Could not send OTP email. Please try again." }, { status: 500 });
+    } catch (err) {
+      const { body, status } = otpEmailErrorResponse(err);
+      return NextResponse.json(body, { status });
     }
     if (!issued.ok) {
       return NextResponse.json({ error: issued.error }, { status: 429 });

@@ -40,6 +40,15 @@ OTP_RESEND_COOLDOWN_SECONDS=60
 - `APP_BASE_URL` is also used for **member referral links** (left/right URLs). Set it to your public site (e.g. `https://ayurhealthint.com`) so links are not built as `localhost` behind a proxy or odd host headers. If unset in **production**, links that would otherwise be `localhost` / `127.0.0.1` fall back to `https://ayurhealthint.com` (override anytime with `APP_BASE_URL`).
 - SMS OTP is not enabled yet; current phase uses email OTP only.
 
+### Production: login / register / withdrawal OTP fails
+
+On the server, `/var/www/healthnet/.env` **must** include valid:
+
+- `RESEND_API_KEY` — API key from [Resend](https://resend.com)
+- `EMAIL_FROM` — Must be a verified sender, e.g. `Ayur Health <noreply@yourdomain.com>` (domain verified in Resend), or Resend’s test domain while testing
+
+Then restart the app (`pm2 restart healthnet --update-env`) so Node picks up the variables.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

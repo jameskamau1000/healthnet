@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ensureBootstrapData } from "@/lib/bootstrap";
 import { createSessionForUser, verifyEmailPassword } from "@/lib/auth";
+import { otpEmailErrorResponse } from "@/lib/email";
 import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
 import { OtpPurpose } from "@prisma/client";
 
@@ -59,8 +60,9 @@ export async function POST(request: Request) {
       userId: user.id,
       payload: { email: user.email },
     });
-  } catch {
-    return NextResponse.json({ error: "Could not send OTP email. Please try again." }, { status: 500 });
+  } catch (err) {
+    const { body, status } = otpEmailErrorResponse(err);
+    return NextResponse.json(body, { status });
   }
   if (!issued.ok) {
     return NextResponse.json({ error: issued.error }, { status: 429 });

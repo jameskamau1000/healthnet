@@ -4,6 +4,7 @@ import { OtpPurpose } from "@prisma/client";
 import { ensureBootstrapData } from "@/lib/bootstrap";
 import { registerMemberSchema } from "@/contracts/member";
 import { registerMemberAccount } from "@/services/member-onboarding-service";
+import { otpEmailErrorResponse } from "@/lib/email";
 import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
 
 const verifySchema = z.object({
@@ -54,8 +55,9 @@ export async function POST(request: Request) {
       recipientEmail: parsed.data.email,
       payload: parsed.data,
     });
-  } catch {
-    return NextResponse.json({ error: "Could not send OTP email. Please try again." }, { status: 500 });
+  } catch (err) {
+    const { body, status } = otpEmailErrorResponse(err);
+    return NextResponse.json(body, { status });
   }
   if (!issued.ok) {
     return NextResponse.json({ error: issued.error }, { status: 429 });
