@@ -1,8 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+
+const fieldClass =
+  "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-900 shadow-inner shadow-slate-900/5 focus:border-ayur-green focus:outline-none focus:ring-2 focus:ring-ayur-green/25";
+const primaryBtnClass =
+  "w-full rounded-xl bg-gradient-to-r from-ayur-gold to-amber-500 px-4 py-2.5 font-bold text-ayur-maroon shadow-md shadow-amber-900/15 transition hover:brightness-105 disabled:opacity-70";
 
 type MeResponse = {
   user: { id: string; email: string; name: string; role: "ADMIN" | "MEMBER" } | null;
@@ -146,216 +152,250 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <div className="mx-auto flex min-h-screen max-w-md items-center px-6">
-        <section className="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.2em] text-ayur-maroon">Ayur Health International</p>
-          <h1 className="mt-2 text-2xl font-bold text-slate-900">
-            {mode === "login" ? "Sign in" : "Create account"}
-          </h1>
-          <p className="mt-1 text-sm text-slate-600">
-            {mode === "login"
-              ? "Access your member or admin dashboard."
-              : "Register your member account to join the platform."}
-          </p>
-          <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("login");
-                setError(null);
-                setNotice(null);
-                router.replace("/login");
-              }}
-              className={`rounded-md px-3 py-2 text-sm font-semibold ${
-                mode === "login" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Login
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode("register");
-                setError(null);
-                setNotice(null);
-                router.replace("/login?tab=register");
-              }}
-              className={`rounded-md px-3 py-2 text-sm font-semibold ${
-                mode === "register" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Register
-            </button>
-          </div>
-
-          {hint && (
-            <p className="mt-4 rounded border border-ayur-gold/30 bg-amber-50/50 p-2 text-xs text-ayur-maroon">{hint}</p>
-          )}
-          {error && <p className="mt-4 rounded border border-rose-200 bg-rose-50 p-2 text-xs text-rose-800">{error}</p>}
-          {notice && <p className="mt-4 rounded border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-800">{notice}</p>}
-
-          {mode === "login" ? (
-            <form className="mt-5 space-y-3" onSubmit={onLogin}>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Email</span>
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="username"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                  required
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-emerald-50/60 via-[#fafcf9] to-amber-50/40 text-slate-900">
+      <div
+        className="pointer-events-none absolute inset-0 marketing-grain opacity-70"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-ayur-gold/20 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-emerald-400/15 blur-3xl"
+        aria-hidden
+      />
+      <div className="relative mx-auto flex min-h-screen max-w-md items-center px-6 py-10">
+        <div className="w-full rounded-3xl bg-gradient-to-br from-ayur-green via-emerald-700 to-ayur-maroon p-[1px] shadow-[0_24px_60px_-20px_rgba(20,83,45,0.35)]">
+          <section className="rounded-[calc(1.5rem-1px)] bg-gradient-to-br from-white via-emerald-50/30 to-amber-50/40 p-6 shadow-inner sm:p-8">
+            <div className="flex justify-center">
+              <div className="rounded-2xl bg-white/90 p-3 shadow-md ring-1 ring-emerald-900/10">
+                <Image
+                  src="/ayur-logo.png"
+                  alt="Ayur Health International"
+                  width={280}
+                  height={80}
+                  className="h-12 w-auto max-w-[240px] object-contain sm:h-14 sm:max-w-[260px]"
+                  priority
                 />
-              </label>
+              </div>
+            </div>
+            <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-gradient-to-r from-ayur-green via-ayur-gold to-ayur-maroon" />
+            <h1 className="mt-4 text-center text-2xl font-bold text-slate-900">
+              {mode === "login" ? "Sign in" : "Create account"}
+            </h1>
+            <p className="mt-1 text-center text-sm text-slate-600">
+              {mode === "login"
+                ? "Access your member or admin dashboard."
+                : "Register your member account to join the platform."}
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-1 rounded-xl border border-emerald-200/60 bg-white/80 p-1 shadow-inner">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError(null);
+                  setNotice(null);
+                  router.replace("/login");
+                }}
+                className={`rounded-lg px-3 py-2.5 text-sm font-bold transition ${
+                  mode === "login"
+                    ? "bg-gradient-to-r from-ayur-green to-emerald-700 text-white shadow-md"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setError(null);
+                  setNotice(null);
+                  router.replace("/login?tab=register");
+                }}
+                className={`rounded-lg px-3 py-2.5 text-sm font-bold transition ${
+                  mode === "register"
+                    ? "bg-gradient-to-r from-ayur-maroon to-rose-900 text-white shadow-md"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Register
+              </button>
+            </div>
 
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Password</span>
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                  required
-                />
-              </label>
-              {loginChallengeId && (
+            {hint && (
+              <p className="mt-4 rounded-xl border border-ayur-gold/40 bg-amber-50/80 p-3 text-xs text-ayur-maroon">
+                {hint}
+              </p>
+            )}
+            {error && (
+              <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">{error}</p>
+            )}
+            {notice && (
+              <p className="mt-4 rounded-xl border border-emerald-200/80 bg-emerald-50/90 p-3 text-xs text-emerald-900">
+                {notice}
+              </p>
+            )}
+
+            {mode === "login" ? (
+              <form className="mt-5 space-y-3" onSubmit={onLogin}>
                 <label className="block text-sm">
-                  <span className="mb-1 block text-slate-600">One-time code (OTP)</span>
+                  <span className="mb-1 block font-medium text-slate-700">Email</span>
                   <input
-                    value={loginOtpCode}
-                    onChange={(e) => setLoginOtpCode(e.target.value)}
-                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                    placeholder="6-digit code"
-                    minLength={6}
-                    maxLength={6}
+                    type="email"
+                    name="email"
+                    autoComplete="username"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    className={fieldClass}
                     required
                   />
                 </label>
-              )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90 disabled:opacity-70"
-              >
-                {loading ? "Signing in..." : loginChallengeId ? "Verify OTP and sign in" : "Sign in"}
-              </button>
-            </form>
-          ) : (
-            <form className="mt-5 space-y-3" onSubmit={onRegister}>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Full name</span>
-                <input
-                  value={regName}
-                  onChange={(e) => setRegName(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                  required
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Email</span>
-                <input
-                  type="email"
-                  value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                  required
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Password</span>
-                <input
-                  type="password"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                  required
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Phone (optional)</span>
-                <input
-                  value={regPhoneNumber}
-                  onChange={(e) => setRegPhoneNumber(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                  placeholder="07... or 254..."
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Package</span>
-                <select
-                  value={regPackageId}
-                  onChange={(e) => setRegPackageId(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                >
-                  <option value="starter">Starter / Common</option>
-                  <option value="fair">Fair</option>
-                  <option value="good">Good</option>
-                  <option value="better">Better</option>
-                  <option value="best">Best</option>
-                </select>
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-slate-600">Referral code (optional)</span>
-                <input
-                  value={regReferralCode}
-                  onChange={(e) => setRegReferralCode(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                />
-              </label>
-              {regReferralCode && (
                 <label className="block text-sm">
-                  <span className="mb-1 block text-slate-600">Preferred tree side</span>
+                  <span className="mb-1 block font-medium text-slate-700">Password</span>
+                  <input
+                    type="password"
+                    name="password"
+                    autoComplete="current-password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    className={fieldClass}
+                    required
+                  />
+                </label>
+                {loginChallengeId && (
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">One-time code (OTP)</span>
+                    <input
+                      value={loginOtpCode}
+                      onChange={(e) => setLoginOtpCode(e.target.value)}
+                      className={fieldClass}
+                      placeholder="6-digit code"
+                      minLength={6}
+                      maxLength={6}
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      required
+                    />
+                  </label>
+                )}
+
+                <button type="submit" disabled={loading} className={primaryBtnClass}>
+                  {loading ? "Signing in..." : loginChallengeId ? "Verify OTP and sign in" : "Sign in"}
+                </button>
+              </form>
+            ) : (
+              <form className="mt-5 space-y-3" onSubmit={onRegister}>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">Full name</span>
+                  <input
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    className={fieldClass}
+                    required
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">Email</span>
+                  <input
+                    type="email"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    className={fieldClass}
+                    required
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">Password</span>
+                  <input
+                    type="password"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    className={fieldClass}
+                    required
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">Phone (optional)</span>
+                  <input
+                    value={regPhoneNumber}
+                    onChange={(e) => setRegPhoneNumber(e.target.value)}
+                    className={fieldClass}
+                    placeholder="07... or 254..."
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">Package</span>
                   <select
-                    value={regPosition}
-                    onChange={(e) => setRegPosition(e.target.value as "left" | "right")}
-                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
+                    value={regPackageId}
+                    onChange={(e) => setRegPackageId(e.target.value)}
+                    className={fieldClass}
                   >
-                    <option value="left">Join left</option>
-                    <option value="right">Join right</option>
+                    <option value="starter">Starter / Common</option>
+                    <option value="fair">Fair</option>
+                    <option value="good">Good</option>
+                    <option value="better">Better</option>
+                    <option value="best">Best</option>
                   </select>
                 </label>
-              )}
-              {registerChallengeId && (
                 <label className="block text-sm">
-                  <span className="mb-1 block text-slate-600">One-time code (OTP)</span>
+                  <span className="mb-1 block font-medium text-slate-700">Referral code (optional)</span>
                   <input
-                    value={registerOtpCode}
-                    onChange={(e) => setRegisterOtpCode(e.target.value)}
-                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900"
-                    placeholder="6-digit code"
-                    minLength={6}
-                    maxLength={6}
-                    required
+                    value={regReferralCode}
+                    onChange={(e) => setRegReferralCode(e.target.value)}
+                    className={fieldClass}
                   />
                 </label>
-              )}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-md bg-ayur-gold px-4 py-2 font-semibold text-ayur-maroon hover:bg-ayur-gold/90 disabled:opacity-70"
-              >
-                {loading
-                  ? "Creating account..."
-                  : registerChallengeId
-                    ? "Verify OTP and create account"
-                    : "Register"}
-              </button>
-            </form>
-          )}
+                {regReferralCode && (
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">Preferred tree side</span>
+                    <select
+                      value={regPosition}
+                      onChange={(e) => setRegPosition(e.target.value as "left" | "right")}
+                      className={fieldClass}
+                    >
+                      <option value="left">Join left</option>
+                      <option value="right">Join right</option>
+                    </select>
+                  </label>
+                )}
+                {registerChallengeId && (
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">One-time code (OTP)</span>
+                    <input
+                      value={registerOtpCode}
+                      onChange={(e) => setRegisterOtpCode(e.target.value)}
+                      className={fieldClass}
+                      placeholder="6-digit code"
+                      minLength={6}
+                      maxLength={6}
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      required
+                    />
+                  </label>
+                )}
+                <button type="submit" disabled={loading} className={primaryBtnClass}>
+                  {loading
+                    ? "Creating account..."
+                    : registerChallengeId
+                      ? "Verify OTP and create account"
+                      : "Register"}
+                </button>
+              </form>
+            )}
 
-          <p className="mt-4 text-xs text-slate-600">
-            Go back to{" "}
-            <Link href="/" className="text-ayur-green hover:underline">
-              platform home
-            </Link>
-            .
-          </p>
-        </section>
+            <p className="mt-6 text-center text-xs text-slate-600">
+              Go back to{" "}
+              <Link href="/" className="font-semibold text-ayur-green hover:underline">
+                platform home
+              </Link>
+              .
+            </p>
+          </section>
+        </div>
       </div>
     </div>
   );

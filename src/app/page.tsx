@@ -211,19 +211,19 @@ export default function Home() {
         kicker: "Welcome to Ayur Health International",
         title: "Mother Nature & You",
         subtitle: "Healing beyond science — holistic wellness and member rewards.",
-        gradient: "from-[#14532d] via-[#15803d] to-[#0f172a]",
+        gradient: "from-[#14532d] via-[#15803d] to-[#9a3412]",
       },
       {
         kicker: "Welcome to Ayur Health International",
         title: "Transparent rewards",
         subtitle: "Referral, binary, and match bonuses with full traceability.",
-        gradient: "from-[#0f172a] via-[#14532d] to-[#15803d]",
+        gradient: "from-[#0f172a] via-[#166534] to-[#b45309]",
       },
       {
         kicker: "Welcome to Ayur Health International",
         title: "Built for growth",
         subtitle: "M-Pesa flows, payouts, and support in one trusted platform.",
-        gradient: "from-[#15803d] via-[#0f172a] to-[#14532d]",
+        gradient: "from-[#15803d] via-[#1e3a2f] to-[#7f1d1d]",
       },
     ],
     [],
@@ -1034,16 +1034,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      <header className="border-b border-slate-200 bg-white shadow-sm">
-        <div className="mx-auto max-w-6xl px-6 py-5">
+      <header className="relative border-b border-emerald-900/10 bg-gradient-to-r from-white via-emerald-50/40 to-amber-50/30 shadow-[0_1px_0_0_rgba(21,128,61,0.08)]">
+        <div
+          className="pointer-events-none absolute inset-0 marketing-grain opacity-60"
+          aria-hidden
+        />
+        <div className="relative mx-auto max-w-6xl px-6 py-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Image
-                src="/ayur-health-logo.svg"
+                src="/ayur-logo.png"
                 alt="Ayur Health International"
-                width={180}
-                height={48}
-                className="h-10 w-auto"
+                width={280}
+                height={80}
+                className="h-10 w-auto max-w-[min(100%,220px)] object-contain object-left sm:h-11 sm:max-w-[260px]"
                 priority
               />
               <div className="hidden border-l border-slate-200 pl-4 text-sm text-slate-600 md:block">

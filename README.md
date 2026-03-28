@@ -37,6 +37,7 @@ OTP_RESEND_COOLDOWN_SECONDS=60
 
 - `EMAIL_FROM` must use a sender/domain verified in Resend.
 - If `RESEND_API_KEY` is missing, OTP endpoints will fail safely.
+- `APP_BASE_URL` is also used for **member referral links** (left/right URLs). Set it to your public site (e.g. `https://ayurhealthint.com`) so links are not built as `localhost` behind a proxy or odd host headers. If unset in **production**, links that would otherwise be `localhost` / `127.0.0.1` fall back to `https://ayurhealthint.com` (override anytime with `APP_BASE_URL`).
 - SMS OTP is not enabled yet; current phase uses email OTP only.
 
 ## Learn More

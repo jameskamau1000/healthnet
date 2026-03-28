@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ensureBootstrapData } from "@/lib/bootstrap";
 import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getPublicSiteUrl } from "@/lib/public-url";
 
 export async function GET(request: Request) {
   await ensureBootstrapData();
@@ -18,9 +19,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const origin = new URL(request.url).origin;
-  const leftLink = `${origin}/?ref=${encodeURIComponent(dbUser.referralCode)}&position=left`;
-  const rightLink = `${origin}/?ref=${encodeURIComponent(dbUser.referralCode)}&position=right`;
+  const base = getPublicSiteUrl(request);
+  const leftLink = `${base}/?ref=${encodeURIComponent(dbUser.referralCode)}&position=left`;
+  const rightLink = `${base}/?ref=${encodeURIComponent(dbUser.referralCode)}&position=right`;
 
   return NextResponse.json({
     referralCode: dbUser.referralCode,
