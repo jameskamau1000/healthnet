@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { PublicMarketing } from "@/components/public-marketing";
-import { buildRegisterLoginHref } from "@/lib/referral-query";
+import { buildRegisterLoginHref, readReferralFromSearch } from "@/lib/referral-query";
 import {
   AuditLogRecord,
   calculatePayout,
@@ -127,6 +128,7 @@ const tabLabels: Record<TabId, string> = {
 };
 
 export default function Home() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -309,11 +311,11 @@ export default function Home() {
 
   useEffect(() => {
     const run = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const ref = params.get("ref");
-      const position = params.get("position");
-      if (ref) setRegReferralCode(ref);
-      if (position === "left" || position === "right") setRegPosition(position);
+      const referral = readReferralFromSearch(
+        typeof window !== "undefined" ? window.location.search : "",
+      );
+      if (referral.ref) setRegReferralCode(referral.ref);
+      setRegPosition(referral.position);
 
       setLoading(true);
       try {
@@ -325,6 +327,9 @@ export default function Home() {
         }
         if (meData.user) {
           await loadDashboard();
+        } else if (referral.ref) {
+          // Referral links should open registration with code + leg pre-filled, not the marketing home.
+          router.replace(buildRegisterLoginHref(referral));
         } else {
           const hint =
             meData.defaultAdmin?.email && meData.defaultAdmin?.password
@@ -340,7 +345,7 @@ export default function Home() {
       }
     };
     run();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!visibleTabs.includes(activeTab)) {
