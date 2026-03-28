@@ -29,7 +29,10 @@ tar czf "$ARCHIVE" \
   --exclude=out \
   --exclude=.git \
   --exclude='.env' \
-  --exclude='.env.*' \
+  --exclude='.env.local' \
+  --exclude='.env.development.local' \
+  --exclude='.env.production.local' \
+  --exclude='.env.production' \
   --exclude='*.db' \
   --exclude='*.db-journal' \
   --exclude='*.db-wal' \
